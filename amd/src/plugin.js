@@ -47,10 +47,10 @@ export default new Promise(async(resolve) => {
         // Register options.
         Options.register(editor);
 
-        // Setup the Formatter.
+        // Set up the Formatter.
         FilterContent.setup(editor);
 
-        // Setup the Commands (buttons, menu items, and so on).
+        // Set up the Commands (buttons, menu items, and so on).
         setupCommands(editor);
 
         return pluginMetadata;

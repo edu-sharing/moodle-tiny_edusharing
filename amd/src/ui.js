@@ -24,12 +24,11 @@
 import {component} from './common';
 import {getRepoUrl, getRepoTarget, getCourseId} from './options';
 
-import {getList} from 'core/normalise';
 import {renderForPromise} from 'core/templates';
 import Modal from 'tiny_edusharing/modal';
 import ModalEvents from 'core/modal_events';
 import ModalFactory from 'core/modal_factory';
-import Config from 'core/config';
+import {getTicket} from "./repository";
 
 let openingSelection = null;
 
@@ -38,65 +37,38 @@ export const handleAction = (editor) => {
     displayDialogue(editor);
 };
 
-const handleDialogueSubmission = async(editor, modal, data) => {
-    const form = getList(modal.getRoot())[0].querySelector('form');
-    if (!form) {
-        // The form couldn't be found, which is weird.
-        // This should not happen.
-        // Display the dialogue again
-        displayDialogue(editor, Object.assign({}, data));
-        return;
-    }
-
-    // Get the URL from the submitted form.
-    const node = JSON.parse(form.querySelector('input[name="edusharing_node"]').value);
-
-    console.log('node:');
-    console.log(node);
-
-    if (!node) {
-        // The node is invalid.
-        // Fill it in and represent the dialogue with an error.
-        displayDialogue(editor, Object.assign({}, data, {
-            edusharing_node: node,
-            invalidUrl: true,
-        }));
-        return;
-    }
+const handleDialogueSubmission = async(editor) => {
+    const nodeJson = window.document.getElementById('edusharing_node').value;
+    const node = JSON.parse(nodeJson);
+    const version = window.document.querySelector('input[name="eduVersion"]:checked').value;
+    const caption = window.document.getElementById('captionInput').value;
+    const alignment = window.document.querySelector('input[name="eduAlignment"]:checked').value;
+    const width = window.document.getElementById('eduWidth').value;
+    const height = window.document.getElementById('eduHeight').value;
 
 
     let style = '';
-    if (node.alignment != 'none') {
+    if (alignment !== 'none') {
         style = 'float:' + node.alignment + ';';
     }
-    if (node.mediatype == 'folder') {
+    if (node.mediatype === 'folder') {
         style = 'display:block;';
     }
-    let version = '0';
-    if (false == node.showlatest && node.version != 'undefined') {
-        version = node.version;
-    }
-    let insert = 'class="edusharing_atto" ' +
-        'style="' + style + '" ' +
-        'title="' + node.title + '" ';
 
     let title = node.title || node.name;
-    let caption = node.caption || '';
 
-    let url = new URL(node.preview.url);
+    let url = new URL(node.previewUrl);
     url.searchParams.set('caption', caption);
-    url.searchParams.set('object_url', node.objecturl);
+    url.searchParams.set('object_url', node.objectUrl);
     url.searchParams.set('mediatype', node.mediatype);
     url.searchParams.set('mimetype', node.mimetype);
     url.searchParams.set('window_version', version);
     url.searchParams.set('title', title);
 
-    let width = Math.round(node.properties['ccm:width']) || 600; // Current image width
-    let height = Math.round(node.properties['ccm:height']) || 400; // Current image height
+    let img = false;
+    let ref = false;
 
-    let img, ref = false;
-
-    if (node.mediatype == 'ref') {
+    if (node.mediatype === 'ref') {
         ref = true;
     } else {
         img = true;
@@ -105,13 +77,14 @@ const handleDialogueSubmission = async(editor, modal, data) => {
     }
 
     const content = await renderForPromise(`${component}/content`, {
-        edusharing_img: img,
-        edusharing_ref: ref,
-        edusharing_preview_src: url.toString(),
-        edusharing_title: title.toString(),
-        edusharing_caption: caption.toString(),
-        edusharing_width: width.toString(),
-        edusharing_height: height.toString(),
+        edusharingImg: img,
+        edusharingRef: ref,
+        edusharingPreviewSrc: url.toString(),
+        edusharingTitle: title.toString(),
+        edusharingCaption: caption.toString(),
+        edusharingWidth: width.toString(),
+        edusharingHeight: height.toString(),
+        edusharingStyle: style
     });
 
     editor.selection.moveToBookmark(openingSelection);
@@ -127,8 +100,6 @@ const getCurrentEdusharingData = (currentEdusharing) => {
     } catch (error) {
         return data;
     }
-
-
     data.node = node.toString();
 
     return data;
@@ -138,52 +109,95 @@ const displayDialogue = async(editor, data = {}) => {
     const selection = editor.selection.getNode();
     const currentEdusharing = selection.closest('.edusharing-placeholder');
     if (currentEdusharing) {
+        window.console.log(currentEdusharing);
         Object.assign(data, getCurrentEdusharingData(currentEdusharing));
     }
 
     const modal = await ModalFactory.create({
         type: Modal.TYPE,
         large: true,
+        removeOnClose: true
     });
     modal.show();
 
     const $root = modal.getRoot();
     const root = $root[0];
-    $root.on(ModalEvents.save, (event, modal) => {
-        handleDialogueSubmission(editor, modal, data);
+    $root.on(ModalEvents.save, () => {
+        handleDialogueSubmission(editor);
     });
-
     root.addEventListener('click', (e) => {
         const openRepoButton = e.target.closest('[data-target="edusharing"]');
         if (openRepoButton) {
             const repoUrl = getRepoUrl(editor);
-            open_repo(repoUrl, getRepoTarget(editor), getCourseId(editor));
-
+            openRepo(repoUrl, getRepoTarget(editor), getCourseId(editor));
             window.addEventListener("message", function(event) {
-                if (event.data.event == "APPLY_NODE") {
+                if (event.data.event === "APPLY_NODE") {
                     const node = event.data.data;
+                    const width = Math.round(node.properties['ccm:width'][0]) || 600;
+                    const height = Math.round(node.properties['ccm:height'][0]) || 400;
                     window.win.close();
-                    console.log(node);
-                    document.getElementById('edusharing-content').innerHTML = node.title;
-                    document.getElementById('edusharing_node').value = JSON.stringify(node);
-
+                    window.console.log(node);
+                    checkVersioning(node);
+                    window.document.getElementById('repoButtonContainer').classList.add('d-none');
+                    window.document.getElementById('nodeOptionsForm').classList.remove('d-none');
+                    window.document.getElementById('eduContentTitle').innerHTML = node.name || node.title;
+                    window.document.getElementById('eduPreviewImage')
+                        .setAttribute('src', node.preview.url);
+                    initSizeCalculation(width, height);
+                    setNodeData(node);
+                    window.document.getElementById('eduSubmitButton').disabled = false;
                 }
-            }, false);
+            });
         }
     });
 };
 
-const open_repo = function(repoUrl, repoTarget, courseId) {
+const initSizeCalculation = (width, height) => {
+    if (width === 0 || height === 0) {
+        return;
+    }
+    const aspectRatio = width / height;
+    const heightInput = window.document.getElementById('eduHeight');
+    const widthInput = window.document.getElementById('eduWidth');
+    widthInput.value = width;
+    heightInput.value = height;
+    widthInput.addEventListener('keyup', event => recalculateDimensions(event));
+    widthInput.addEventListener('change', event => recalculateDimensions(event));
+    heightInput.addEventListener('keyup', event => recalculateDimensions(event));
+    heightInput.addEventListener('change', event => recalculateDimensions(event));
+    const recalculateDimensions = (event) => {
+        if (event.target.id === 'eduHeight') {
+            widthInput.value = Math.round(heightInput.value * aspectRatio);
+        } else {
+            heightInput.value = Math.round(widthInput.value / aspectRatio);
+        }
+    };
+};
 
+const checkVersioning = (node) => {
+    if (node.aspects.includes('ccm:published') || node.aspects.includes('ccm:collection_io_reference')) {
+        window.document.querySelectorAll(".eduVersionRadio")
+            .forEach(item => item.classList.add('d-none'));
+    }
+    window.document.getElementById('eduversion2').value = node.properties['cclom:version'][0];
+};
+
+const setNodeData = node => {
+    const nodeData = {
+        mimetype: node.mimetype,
+        mediatype: node.mediatype,
+        title: node.title,
+        objectUrl: node.objectUrl,
+        name: node.name,
+        previewUrl: node.preview.url
+    };
+    window.document.getElementById('edusharing_node').value = JSON.stringify(nodeData);
+};
+
+const openRepo = (repoUrl, repoTarget, courseId) => {
     window.win = window.open();
     window.win.document.write('Loading edu-sharing ticket...');
-
-    var fetchUrl = `${Config.wwwroot}/lib/editor/tiny/plugins/edusharing/fetch.php`;
-
     switch (repoTarget) {
-        case 'search':
-            repoTarget = '/components/search';
-            break;
         case 'collections':
             repoTarget = '/components/collections';
             break;
@@ -193,30 +207,16 @@ const open_repo = function(repoUrl, repoTarget, courseId) {
         default:
             repoTarget = '/components/search';
     }
-
-    // Fetch ticket
-    fetch(fetchUrl, {
-        method: 'post',
-        mode:    'cors',
-        headers: {
-            'Content-Type': 'application/json', // Sent request
-            'Accept':       'application/json' // Expected data sent back
-        },
-        body: JSON.stringify({
-            useCase: 'getTicket',
-            courseid: courseId
-        })
-    })
-        .then(function(response) {
-            if (response.status >= 200 && response.status < 300) {
-                return response.text();
-            }
-            throw new Error(response.statusText);
-        })
-        .then(function(response) {
-            var ticket = response;
-            repoUrl += repoTarget + '?reurl=WINDOW&applyDirectories=true&ticket=' + ticket;
-            // Window.win = window.open(repoUrl);
+    const ajaxParams = {
+        eduTicketStructure: {
+            courseId: courseId
+        }
+    };
+    getTicket(ajaxParams)
+        .then(response => {
+            repoUrl += repoTarget + '?reurl=WINDOW&applyDirectories=true&ticket=' + response.ticket;
             window.win.location.href = repoUrl;
-        });
+            return null;
+        })
+        .fail(() => window.document.write('Error loading ticket.'));
 };

@@ -22,10 +22,22 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['buttontitle'] = 'Insert edu-sharing content';
 $string['pluginname'] = 'edu-sharing TinyMCE-Editor';
 $string['modaltitle'] = 'Insert edu-sharing content';
-$string['instructions'] = 'You can insert edu-sharing content by opening the repository.';
-$string['openRepo'] = 'Open edu-sharing:';
-$string['browserepository'] = 'Browse edu-sharing:';
+$string['instructions'] = 'You can insert edu-sharing content by opening the repository and applying an item.';
+$string['openRepo'] = 'Open edu-sharing';
+$string['browserepository'] = 'Browse edu-sharing';
 $string['insert'] = 'Insert edu-sharing content';
-
+$string['newestVersion'] = 'Newest version';
+$string['thisVersion'] = 'This version';
+$string['objectVersioning'] = 'Object versioning';
+$string['caption'] = 'Caption';
+$string['alignment'] = 'Alignment';
+$string['floatLeft'] = 'Float left';
+$string['floatRight'] = 'Float right';
+$string['alignmentNone'] = 'None';
+$string['dimensions'] = 'Dimensions';
+$string['height'] = 'Height';
+$string['width'] = 'Width';
+$string['nonVersionableHint'] = 'This object cannot be versioned since it is either a published copy or a reference to a collection.';
