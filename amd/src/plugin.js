@@ -29,7 +29,7 @@ import * as Commands from './commands';
 import * as Configuration from './configuration';
 import * as Options from './options';
 
-// Setup the edu-sharing Plugin to add a button and menu option.
+// Set up the edu-sharing Plugin to add a button and menu option.
 export default new Promise(async(resolve) => {
     const [
         tinyMCE,

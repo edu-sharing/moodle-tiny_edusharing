@@ -34,13 +34,12 @@
 }}
 
 <div class="edusharing-placeholder" contenteditable="false">
-
     {{# edusharingImg }}
-        <img class="edusharing_atto" alt="{{ edusharingTitle }}" src="{{ edusharingPreviewSrc }}" width="{{ edusharingWidth }}" height="{{ edusharingHeight }}" style="{{ edusharingStyle }}">
+        <img class="edusharing_atto" alt="{{ edusharingTitle }}" title="{{ edusharingTitle }}" src="{{ edusharingPreviewSrc }}" width="{{ edusharingWidth }}" height="{{ edusharingHeight }}" style="{{ edusharingStyle }}">
         <p>{{ edusharing_caption }}</p>
     {{/ edusharingImg }}
 
     {{# edusharingRef }}
-        <a class="edusharing_atto" href="{{ edusharingPreviewSrc }}">{{ edusharingTitle }}</a>
+        <a class="edusharing_atto" href="{{ edusharingPreviewSrc }}" title="{{ edusharingTitle }}">{{ edusharingTitle }}</a>
     {{/ edusharingRef }}
 </div>

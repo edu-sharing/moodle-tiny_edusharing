@@ -18,14 +18,15 @@
  * Plugin version and other meta-data are defined here.
  *
  * @package     tiny_edusharing
- * @copyright   2022 metaVentis GmbH <http://metaventis.com>
+ * @copyright   2023 metaVentis GmbH <http://metaventis.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'tiny_edusharing';
-$plugin->release = '0.1.0';
-$plugin->version = 2022110201;
+$plugin->release = '8.0.0_beta';
+$plugin->version = 2023111500;
 $plugin->requires = 2022041900;
-$plugin->maturity = MATURITY_ALPHA;
+$plugin->dependencies = ['mod_edusharing' => 2023111500];
+$plugin->maturity = MATURITY_BETA;

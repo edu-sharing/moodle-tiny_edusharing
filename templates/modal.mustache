@@ -41,12 +41,19 @@
 
     {{$body}}
         <form class="mform">
-            <div class="p-2" id="repoButtonContainer">
-                <div class="pb-2">
-                    {{#str}} instructions, tiny_edusharing{{/str}}
+            <div class="p-2 container" id="repoButtonContainer">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="pb-2">
+                            {{#str}} instructions, tiny_edusharing{{/str}}
+                        </div>
+                        <button class="btn btn-primary" type="button" data-target="edusharing">
+                            {{#str}} browserepository, tiny_edusharing{{/str}}</button>
+                    </div>
+                    <div class="col-6 p-1">
+                        <img id="eduInstructionGif" src="/lib/editor/tiny/plugins/edusharing/pix/help_en.gif" alt="edu-sharing animated instructions" width="100%" height="auto">
+                    </div>
                 </div>
-                <button class="btn btn-primary" type="button" data-target="edusharing">
-                    {{#str}} browserepository, tiny_edusharing{{/str}}</button>
             </div>
             <div id="nodeOptionsForm" class="p-2 container d-none">
                 <div class="row">
@@ -92,7 +99,7 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-3" id="eduWidthContainer">
                             <h5>{{#str}} dimensions, tiny_edusharing{{/str}}</h5>
                             <div class="form-group">
                                 <label for="eduWidth">{{#str}} width, tiny_edusharing{{/str}}</label>

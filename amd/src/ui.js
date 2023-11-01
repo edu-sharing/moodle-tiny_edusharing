@@ -29,12 +29,20 @@ import Modal from 'tiny_edusharing/modal';
 import ModalEvents from 'core/modal_events';
 import ModalFactory from 'core/modal_factory';
 import {getTicket} from "./repository";
+import Config from 'core/config';
 
 let openingSelection = null;
 
 export const handleAction = (editor) => {
     openingSelection = editor.selection.getBookmark();
     displayDialogue(editor);
+};
+
+export const initInstructionGif = () => {
+    const gif = window.document.getElementById('eduInstructionGif');
+    const relativePath = gif.getAttribute('src');
+    const absolutePath = Config.wwwroot + relativePath;
+    gif.setAttribute('src', absolutePath);
 };
 
 const handleDialogueSubmission = async(editor) => {
@@ -49,7 +57,7 @@ const handleDialogueSubmission = async(editor) => {
 
     let style = '';
     if (alignment !== 'none') {
-        style = 'float:' + node.alignment + ';';
+        style = 'float:' + alignment + ';';
     }
     if (node.mediatype === 'folder') {
         style = 'display:block;';
@@ -109,7 +117,6 @@ const displayDialogue = async(editor, data = {}) => {
     const selection = editor.selection.getNode();
     const currentEdusharing = selection.closest('.edusharing-placeholder');
     if (currentEdusharing) {
-        window.console.log(currentEdusharing);
         Object.assign(data, getCurrentEdusharingData(currentEdusharing));
     }
 
@@ -133,16 +140,16 @@ const displayDialogue = async(editor, data = {}) => {
             window.addEventListener("message", function(event) {
                 if (event.data.event === "APPLY_NODE") {
                     const node = event.data.data;
-                    const width = Math.round(node.properties['ccm:width'][0]) || 600;
-                    const height = Math.round(node.properties['ccm:height'][0]) || 400;
+                    const width = node.properties['ccm:width'] !== undefined ? Math.round(node.properties['ccm:width'][0]) : 600;
+                    const height = node.properties['ccm:height'] !== undefined ? Math.round(node.properties['ccm:height'][0]) : 400;
                     window.win.close();
-                    window.console.log(node);
                     checkVersioning(node);
                     window.document.getElementById('repoButtonContainer').classList.add('d-none');
                     window.document.getElementById('nodeOptionsForm').classList.remove('d-none');
-                    window.document.getElementById('eduContentTitle').innerHTML = node.name || node.title;
+                    window.document.getElementById('eduContentTitle').innerHTML = node.name ?? node.title;
                     window.document.getElementById('eduPreviewImage')
                         .setAttribute('src', node.preview.url);
+                    hideSizeOptions(node.mediatype);
                     initSizeCalculation(width, height);
                     setNodeData(node);
                     window.document.getElementById('eduSubmitButton').disabled = false;
@@ -150,6 +157,12 @@ const displayDialogue = async(editor, data = {}) => {
             });
         }
     });
+};
+
+const hideSizeOptions = mediaType => {
+    if (mediaType === 'file-pdf' || mediaType === 'file-odt') {
+        window.document.getElementById('eduWidthContainer').classList.add('d-none');
+    }
 };
 
 const initSizeCalculation = (width, height) => {

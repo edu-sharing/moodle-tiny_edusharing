@@ -42,11 +42,12 @@ const convertForSubmit = async(editor) => {
                     }
                 };
                 let response = await addEduSharingInstance(ajaxParams);
-                window.console.log(response);
-                let isImage = domNode.nodeName.toLowerCase() === 'img';
-                let previewUrl = `${Config.wwwroot}/lib/editor/atto/plugins/edusharing/preview.php`
-                    + '?resourceId=' + response.id + '&' + searchParams.toString();
-                domNode.setAttribute(isImage ? 'src' : 'href', previewUrl);
+                if (response.id !== undefined) {
+                    let isImage = domNode.nodeName.toLowerCase() === 'img';
+                    let previewUrl = `${Config.wwwroot}/lib/editor/tiny/plugins/edusharing/preview.php`
+                        + '?resourceId=' + response.id + '&' + searchParams.toString();
+                    domNode.setAttribute(isImage ? 'src' : 'href', previewUrl);
+                }
             }
         }
     };
@@ -55,13 +56,12 @@ const convertForSubmit = async(editor) => {
     await iterateAsync(container);
     editor.setContent(container.innerHTML);
     for (const resourceId of initialElements) {
-        let response = await deleteEduSharingInstance({
+        await deleteEduSharingInstance({
             eduDeleteStructure: {
                 id: resourceId,
                 courseId: parseInt(getCourseId(editor))
             }
         });
-        window.console.log(response);
     }
 };
 
