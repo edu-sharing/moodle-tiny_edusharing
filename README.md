@@ -12,7 +12,7 @@ The edu-sharing tiny editor plugin depends on the edu-sharing activity plugin.
 
 ## Installing from moodle plugin directory ##
 
-1. Log in to your Moodle site as an admin and go to _Site administration >
+1. Log in to your Moodle site as admin and go to _Site administration >
    Plugins > Install plugins_.
 2. Click the button to _Install plugins from the Moodle plugins directory_
 3. Search for the edusharing tiny plugin
