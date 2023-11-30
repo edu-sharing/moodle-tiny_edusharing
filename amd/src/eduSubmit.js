@@ -1,14 +1,16 @@
 import {getCourseId} from "./options";
-import {addEduSharingInstance, deleteEduSharingInstance} from "./repository";
+import {addEduSharingInstance, deleteEduSharingInstance, updateInstance} from "./repository";
 import Config from 'core/config';
 
 export const initEventHandler = (editor) => {
     const container = editor.getContainer();
     const form = container.closest("form");
     form.addEventListener('submit', async(event) => {
-        event.preventDefault();
-        await convertForSubmit(editor);
-        form.submit();
+        if (event.submitter.id === "id_submitbutton") {
+            event.preventDefault();
+            await convertForSubmit(editor);
+            form.submit();
+        }
     });
 };
 
@@ -29,11 +31,25 @@ const convertForSubmit = async(editor) => {
             let link = domNode.getAttribute(domNode.nodeName.toLowerCase() === 'img' ? 'src' : 'href');
             let uri = new URL(link);
             let searchParams = uri.searchParams;
-            let indexOfElement = initialElements.indexOf(searchParams.get('resource_id'));
-            if (indexOfElement > 0) {
+            let indexOfElement = initialElements.indexOf(parseInt(searchParams.get('resourceId')));
+            if (indexOfElement >= 0) {
                 initialElements.splice(indexOfElement, 1);
+                if (domNode.getAttribute('data-edited') !== null && domNode.getAttribute('data-edited') !== "") {
+                    let ajaxParams = {
+                        eduStructure: {
+                            id: parseInt(searchParams.get('resourceId')),
+                            courseId: parseInt(getCourseId(editor)),
+                            objectUrl: searchParams.get('object_url')
+                        }
+                    };
+                    let response = await updateInstance(ajaxParams);
+                    if (response.id === undefined) {
+                        window.console.log('Error updating instance');
+                    }
+                    domNode.removeAttribute('data-edited');
+                }
             } else {
-                const ajaxParams = {
+                let ajaxParams = {
                     eduStructure: {
                         name: searchParams.get('title'),
                         objectUrl: searchParams.get('object_url'),

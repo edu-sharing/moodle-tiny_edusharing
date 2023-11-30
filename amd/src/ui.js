@@ -22,7 +22,7 @@
  */
 
 import {component} from './common';
-import {getRepoUrl, getRepoTarget, getCourseId} from './options';
+import {getCourseId, getRepoTarget, getRepoUrl} from './options';
 
 import {renderForPromise} from 'core/templates';
 import Modal from 'tiny_edusharing/modal';
@@ -40,12 +40,15 @@ export const handleAction = (editor) => {
 
 export const initInstructionGif = () => {
     const gif = window.document.getElementById('eduInstructionGif');
+    if (gif === null) {
+        return;
+    }
     const relativePath = gif.getAttribute('src');
     const absolutePath = Config.wwwroot + relativePath;
     gif.setAttribute('src', absolutePath);
 };
 
-const handleDialogueSubmission = async(editor) => {
+const handleInsertSubmission = async(editor) => {
     const nodeJson = window.document.getElementById('edusharing_node').value;
     const node = JSON.parse(nodeJson);
     const version = window.document.querySelector('input[name="eduVersion"]:checked').value;
@@ -53,8 +56,6 @@ const handleDialogueSubmission = async(editor) => {
     const alignment = window.document.querySelector('input[name="eduAlignment"]:checked').value;
     const width = window.document.getElementById('eduWidth').value;
     const height = window.document.getElementById('eduHeight').value;
-
-
     let style = '';
     if (alignment !== 'none') {
         style = 'float:' + alignment + ';';
@@ -100,25 +101,121 @@ const handleDialogueSubmission = async(editor) => {
     editor.selection.moveToBookmark(openingSelection);
 };
 
-const getCurrentEdusharingData = (currentEdusharing) => {
-    const data = {};
-    let node;
-    try {
-        node = currentEdusharing.textContent;
-    } catch (error) {
-        return data;
-    }
-    data.node = node.toString();
+const displayDialogue = async(editor) => {
+    const prepareEditModal = () => {
+        const addEditSubmitHandler = () => {
+            $root.on(ModalEvents.save, () => {
+                const newCaption = window.document.getElementById('captionInput').value;
+                if (existingCaptionParagraph === null && newCaption !== "") {
+                    const newCaptionParagraph = document.createElement('p');
+                    newCaptionParagraph.classList.add('edusharing_caption');
+                    newCaptionParagraph.innerHTML(newCaption);
+                    currentEdusharing.appendChild(newCaptionParagraph);
+                } else if (existingCaptionParagraph !== null) {
+                    existingCaptionParagraph.innerHTML = newCaption;
+                }
+                const inputAlignment = window.document.querySelector('input[name="eduAlignment"]:checked').value;
+                const hasAlignmentChanged = inputAlignment !== alignment;
+                if (hasAlignmentChanged) {
+                    if (inputAlignment === 'none') {
+                        currentEdusharing.style.removeProperty('float');
+                        currentEdusharing.setAttribute('data-mce-style', "");
+                    } else {
+                        currentEdusharing.style.float = inputAlignment;
+                        currentEdusharing.setAttribute('data-mce-style', 'float: ' + inputAlignment + ';');
+                    }
+                }
+                let hasSizeChanged = false;
+                if (isSizeEditable) {
+                    const inputWidth = window.document.getElementById('eduWidth').value;
+                    const inputHeight = window.document.getElementById('eduHeight').value;
+                    hasSizeChanged = inputHeight !== height || inputWidth !== width;
+                    if (hasSizeChanged) {
+                        eduImage.setAttribute('width', inputWidth);
+                        eduImage.setAttribute('height', inputHeight);
+                        url.searchParams.set('width', inputWidth);
+                        url.searchParams.set('height', inputHeight);
+                    }
+                }
+                if (hasAlignmentChanged || hasSizeChanged) {
+                    eduImage.setAttribute('src', url.toString());
+                    eduImage.setAttribute('data-edited', 1);
+                }
+            });
+        };
+        const submitButton = window.document.getElementById('eduSubmitButton');
+        submitButton.disabled = false;
+        submitButton.innerHTML = submitButton.getAttribute('data-secondary-title');
+        let isSizeEditable = true;
+        const modalTitle = root.querySelector('.modal-title');
+        modalTitle.innerHTML = modalTitle.querySelector('input').value;
+        const nodeOptionsForm = window.document.getElementById('nodeOptionsForm');
+        window.document.getElementById('repoButtonContainer').classList.add('d-none');
+        nodeOptionsForm.classList.remove('d-none');
+        const eduImage = currentEdusharing.querySelector("img.edusharing_atto");
+        if (eduImage === null || eduImage === undefined) {
+            root.querySelector('.mform').classList.add('d-none');
+            root.getElementById('eduNoEditInfo').classList.remove('d-none');
+            root.getElementById('eduSubmitButton').classList.add('d-none');
+            return;
+        }
+        const objectUrl = eduImage.getAttribute('src');
+        window.document.getElementById('eduPreviewImage').setAttribute('src', objectUrl);
+        let url = new URL(objectUrl);
+        const mediaType = url.searchParams.get('mediatype');
+        let width = 600;
+        let height = 400;
+        if (!hideSizeOptions(mediaType)) {
+            width = parseInt(eduImage.getAttribute('width') ?? 600);
+            height = parseInt(eduImage.getAttribute('height') ?? 400);
+            initSizeCalculation(width, height);
+        } else {
+            isSizeEditable = false;
+        }
+        window.document.querySelectorAll(".eduVersionRadio").forEach(item => item.classList.add('d-none'));
 
-    return data;
-};
-
-const displayDialogue = async(editor, data = {}) => {
+        const existingCaptionParagraph = currentEdusharing.querySelector('.edusharing_caption');
+        const existingCaption = existingCaptionParagraph === null ? "" : existingCaptionParagraph.innerHTML;
+        window.document.getElementById('captionInput').value = existingCaption;
+        window.document.getElementById('eduContentTitle').innerHTML = url.searchParams.get('title');
+        const alignment = currentEdusharing.style.float ?? 'none';
+        if (alignment !== 'none') {
+            window.document.getElementById('eduAlignment' + (alignment === 'right' ? '2' : '1')).checked = true;
+        }
+        addEditSubmitHandler();
+    };
+    const prepareInsertModal = () => {
+        root.addEventListener('click', (e) => {
+            const openRepoButton = e.target.closest('[data-target="edusharing"]');
+            if (openRepoButton) {
+                const repoUrl = getRepoUrl(editor);
+                openRepo(repoUrl, getRepoTarget(editor), getCourseId(editor));
+                window.addEventListener("message", applyNodeListener);
+            }
+        });
+        const applyNodeListener = event => {
+            if (event.data.event === "APPLY_NODE") {
+                const node = event.data.data;
+                const width = node.properties['ccm:width'] !== undefined ? Math.round(node.properties['ccm:width'][0]) : 600;
+                const height = node.properties['ccm:height'] !== undefined ? Math.round(node.properties['ccm:height'][0]) : 400;
+                window.win.close();
+                checkVersioning(node);
+                window.document.getElementById('repoButtonContainer').classList.add('d-none');
+                window.document.getElementById('nodeOptionsForm').classList.remove('d-none');
+                window.document.getElementById('eduContentTitle').innerHTML = node.name ?? node.title;
+                window.document.getElementById('eduPreviewImage')
+                    .setAttribute('src', node.preview.url);
+                hideSizeOptions(node.mediatype);
+                hideCaptionInput(node.mediatype);
+                initSizeCalculation(width, height);
+                setNodeData(node);
+                window.document.getElementById('eduSubmitButton').disabled = false;
+            }
+        };
+    };
     const selection = editor.selection.getNode();
     const currentEdusharing = selection.closest('.edusharing-placeholder');
-    if (currentEdusharing) {
-        Object.assign(data, getCurrentEdusharingData(currentEdusharing));
-    }
+    const isEditMode = currentEdusharing !== null;
 
     const modal = await ModalFactory.create({
         type: Modal.TYPE,
@@ -129,39 +226,28 @@ const displayDialogue = async(editor, data = {}) => {
 
     const $root = modal.getRoot();
     const root = $root[0];
-    $root.on(ModalEvents.save, () => {
-        handleDialogueSubmission(editor);
-    });
-    root.addEventListener('click', (e) => {
-        const openRepoButton = e.target.closest('[data-target="edusharing"]');
-        if (openRepoButton) {
-            const repoUrl = getRepoUrl(editor);
-            openRepo(repoUrl, getRepoTarget(editor), getCourseId(editor));
-            window.addEventListener("message", function(event) {
-                if (event.data.event === "APPLY_NODE") {
-                    const node = event.data.data;
-                    const width = node.properties['ccm:width'] !== undefined ? Math.round(node.properties['ccm:width'][0]) : 600;
-                    const height = node.properties['ccm:height'] !== undefined ? Math.round(node.properties['ccm:height'][0]) : 400;
-                    window.win.close();
-                    checkVersioning(node);
-                    window.document.getElementById('repoButtonContainer').classList.add('d-none');
-                    window.document.getElementById('nodeOptionsForm').classList.remove('d-none');
-                    window.document.getElementById('eduContentTitle').innerHTML = node.name ?? node.title;
-                    window.document.getElementById('eduPreviewImage')
-                        .setAttribute('src', node.preview.url);
-                    hideSizeOptions(node.mediatype);
-                    initSizeCalculation(width, height);
-                    setNodeData(node);
-                    window.document.getElementById('eduSubmitButton').disabled = false;
-                }
-            });
-        }
-    });
+    if (isEditMode) {
+        prepareEditModal();
+    } else {
+        prepareInsertModal();
+        $root.on(ModalEvents.save, () => {
+            handleInsertSubmission(editor);
+        });
+    }
 };
 
 const hideSizeOptions = mediaType => {
-    if (mediaType === 'file-pdf' || mediaType === 'file-odt') {
+    const mediaTypesWithoutSizeChoice = ['file-word', 'file-pdf', 'file-odt', 'file-audio', 'file-pdf', 'link'];
+    if (mediaTypesWithoutSizeChoice.includes(mediaType)) {
         window.document.getElementById('eduWidthContainer').classList.add('d-none');
+        return true;
+    }
+    return false;
+};
+
+const hideCaptionInput = mediaType => {
+    if (mediaType === "ref") {
+        window.document.getElementById("eduCaptionContainer").classList.add('d-none');
     }
 };
 
@@ -188,11 +274,14 @@ const initSizeCalculation = (width, height) => {
 };
 
 const checkVersioning = (node) => {
-    if (node.aspects.includes('ccm:published') || node.aspects.includes('ccm:collection_io_reference')) {
+    const hasVersion = node.properties['cclom:version'] !== undefined;
+    if (node.aspects.includes('ccm:published') || node.aspects.includes('ccm:collection_io_reference') || !hasVersion) {
         window.document.querySelectorAll(".eduVersionRadio")
             .forEach(item => item.classList.add('d-none'));
     }
-    window.document.getElementById('eduversion2').value = node.properties['cclom:version'][0];
+    if (hasVersion) {
+        window.document.getElementById('eduversion2').value = node.properties['cclom:version'][0];
+    }
 };
 
 const setNodeData = node => {

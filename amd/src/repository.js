@@ -14,3 +14,8 @@ export const deleteEduSharingInstance = args => fetchMany([{
     methodname: 'mod_edusharing_delete_instance',
     args: args
 }])[0];
+
+export const updateInstance = args => fetchMany([{
+    methodname: 'mod_edusharing_update_instance',
+    args: args
+}])[0];
