@@ -32,15 +32,15 @@ try {
     $baseHelper = new EduSharingHelperBase(get_config('edusharing', 'application_cc_gui_url'), get_config('edusharing', 'application_private_key'), get_config('edusharing', 'application_appid'));
     $time       = round(microtime(true) * 1000);
 
-    $url = $utils->getInternalUrl() . '/preview';;
+    $url = $utils->get_internal_url() . '/preview';;
     $url     .= '?appId=' . get_config('edusharing', 'application_appid');
     $url     .= '&courseId=' . $edusharing->course;
-    $url     .= '&repoId=' . $utils->getRepositoryIdFromUrl($edusharing->object_url);
+    $url     .= '&repoId=' . $utils->get_repository_id_from_url($edusharing->object_url);
     $url     .= '&proxyRepId=' . get_config('edusharing', 'application_homerepid');
-    $url     .= '&nodeId=' . $utils->getObjectIdFromUrl($edusharing->object_url);
+    $url     .= '&nodeId=' . $utils->get_object_id_from_url($edusharing->object_url);
     $url     .= '&resourceId=' . $resourceId;
     $url     .= '&version=' . $edusharing->object_version;
-    $sigData = get_config('edusharing', 'application_appid') . $time . $utils->getObjectIdFromUrl($edusharing->object_url);
+    $sigData = get_config('edusharing', 'application_appid') . $time . $utils->get_object_id_from_url($edusharing->object_url);
     $sig     = urlencode($baseHelper->sign($sigData));
     $url     .= '&sig=' . $sig;
     $url     .= '&signed=' . $sigData;
