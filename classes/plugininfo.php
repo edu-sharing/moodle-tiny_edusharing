@@ -17,12 +17,11 @@
 namespace tiny_edusharing;
 
 use context;
+use editor_tiny\editor;
 use editor_tiny\plugin;
 use editor_tiny\plugin_with_buttons;
 use editor_tiny\plugin_with_menuitems;
 use editor_tiny\plugin_with_configuration;
-
-global $COURSE;
 
 /**
  * Tiny edu-sharing plugin for Moodle.
@@ -31,24 +30,43 @@ global $COURSE;
  * @copyright   2022 metaVentis GmbH <http://metaventis.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class plugininfo extends plugin implements
     plugin_with_buttons,
     plugin_with_menuitems,
     plugin_with_configuration {
 
+    /**
+     * Function get_available_buttons
+     *
+     * @return string[]
+     */
     public static function get_available_buttons(): array {
         return [
             'tiny_edusharing/edusharing',
         ];
     }
 
+    /**
+     * Function get_available_menuitems
+     *
+     * @return string[]
+     */
     public static function get_available_menuitems(): array {
         return [
             'tiny_edusharing/edusharing',
         ];
     }
 
+    /**
+     * Function get_plugin_configuration_for_context
+     *
+     * @param context $context
+     * @param array $options
+     * @param array $fpoptions
+     * @param editor|null $editor
+     * @return array
+     * @throws \dml_exception
+     */
     public static function get_plugin_configuration_for_context(
         context $context,
         array $options,
