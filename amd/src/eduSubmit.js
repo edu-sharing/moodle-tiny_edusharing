@@ -60,7 +60,7 @@ const convertForSubmit = async(editor) => {
                 let response = await addEduSharingInstance(ajaxParams);
                 if (response.id !== undefined) {
                     let isImage = domNode.nodeName.toLowerCase() === 'img';
-                    let previewUrl = `${Config.wwwroot}/lib/editor/tiny/plugins/edusharing/preview.php`
+                    let previewUrl = `${Config.wwwroot}/mod/edusharing/preview.php`
                         + '?resourceId=' + response.id + '&' + searchParams.toString();
                     domNode.setAttribute(isImage ? 'src' : 'href', previewUrl);
                 }

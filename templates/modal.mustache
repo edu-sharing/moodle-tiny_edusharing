@@ -41,6 +41,24 @@
     {{/title}}
 
     {{$body}}
+        <div class="p-2 d-none" id="eduAttoCaptionPrompt">
+            <div class="alert alert-warning" role="alert">
+                <p>{{#str}} attoCaptionPrompt, tiny_edusharing{{/str}}</p>
+                <p id="eduCaptionText"></p>
+                <div class="form-check eduCaptionRadio">
+                    <input class="form-check-input" type="radio" name="eduCaption" id="eduCaption1" value="0" checked>
+                    <label class="form-check-label" for="eduCaption1">
+                        {{#str}} thisCaption, tiny_edusharing{{/str}}
+                    </label>
+                </div>
+                <div class="form-check eduCaptionRadio">
+                    <input class="form-check-input" type="radio" name="eduCaption" id="eduCaption2" value="1">
+                    <label class="form-check-label" for="eduCaption2">
+                        {{#str}} otherCaption, tiny_edusharing{{/str}}
+                    </label>
+                </div>
+            </div>
+        </div>
         <div id="eduNoEditInfo" class="p-2 d-none">{{#str}} noEditInfo, tiny_edusharing{{/str}}</div>
         <form class="mform">
             <div class="p-2 container" id="repoButtonContainer">
@@ -126,5 +144,6 @@
     {{$footer}}
         <button type="button" class="btn btn-secondary" data-action="cancel">{{#str}} cancel, moodle {{/str}}</button>
         <button type="button" id="eduSubmitButton" class="btn btn-primary" data-action="save" data-secondary-title="{{#str}} edit, tiny_edusharing{{/str}}" disabled>{{#str}} insert, tiny_edusharing{{/str}}</button>
+        <button type="button" id="eduCaptionContinueButton" class="btn btn-primary d-none">{{#str}} continue, tiny_edusharing{{/str}}</button>
     {{/footer}}
 {{/ core/modal }}

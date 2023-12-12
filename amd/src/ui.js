@@ -90,10 +90,12 @@ const handleInsertSubmission = async(editor) => {
         edusharingRef: ref,
         edusharingPreviewSrc: url.toString(),
         edusharingTitle: title.toString(),
+        edusharingInsertCaption: caption.toString() !== "",
         edusharingCaption: caption.toString(),
         edusharingWidth: width.toString(),
         edusharingHeight: height.toString(),
-        edusharingStyle: style
+        edusharingStyle: style,
+        dataEdited: false
     });
 
     editor.selection.moveToBookmark(openingSelection);
@@ -106,52 +108,122 @@ const displayDialogue = async(editor) => {
         const addEditSubmitHandler = () => {
             $root.on(ModalEvents.save, () => {
                 const newCaption = window.document.getElementById('captionInput').value;
-                if (existingCaptionParagraph === null && newCaption !== "") {
-                    const newCaptionParagraph = document.createElement('p');
-                    newCaptionParagraph.classList.add('edusharing_caption');
-                    newCaptionParagraph.innerHTML(newCaption);
-                    currentEdusharing.appendChild(newCaptionParagraph);
-                } else if (existingCaptionParagraph !== null) {
-                    existingCaptionParagraph.innerHTML = newCaption;
-                }
                 const inputAlignment = window.document.querySelector('input[name="eduAlignment"]:checked').value;
                 const hasAlignmentChanged = inputAlignment !== alignment;
-                if (hasAlignmentChanged) {
-                    if (inputAlignment === 'none') {
-                        currentEdusharing.style.removeProperty('float');
-                        currentEdusharing.setAttribute('data-mce-style', "");
-                    } else {
-                        currentEdusharing.style.float = inputAlignment;
-                        currentEdusharing.setAttribute('data-mce-style', 'float: ' + inputAlignment + ';');
-                    }
+                const inputWidth = parseInt(window.document.getElementById('eduWidth').value);
+                const inputHeight = parseInt(window.document.getElementById('eduHeight').value);
+                let hasSizeChanged = inputHeight !== height || inputWidth !== width;
+                if (isSizeEditable && hasSizeChanged) {
+                    url.searchParams.set('width', inputWidth);
+                    url.searchParams.set('height', inputHeight);
                 }
-                let hasSizeChanged = false;
-                if (isSizeEditable) {
-                    const inputWidth = window.document.getElementById('eduWidth').value;
-                    const inputHeight = window.document.getElementById('eduHeight').value;
-                    hasSizeChanged = inputHeight !== height || inputWidth !== width;
-                    if (hasSizeChanged) {
+                if (!isOldAttoElement) {
+                    if (existingCaption === null && newCaption !== "") {
+                        const newCaptionParagraph = document.createElement('p');
+                        newCaptionParagraph.classList.add('edusharing_caption');
+                        newCaptionParagraph.innerHTML = newCaption;
+                        currentEdusharing.appendChild(newCaptionParagraph);
+                    } else if (existingCaption !== null && newCaption !== "") {
+                        existingCaptionParagraph.remove();
+                    } else {
+                        existingCaption.innerHTML = newCaption;
+                    }
+                    if (hasAlignmentChanged) {
+                        if (inputAlignment === 'none') {
+                            currentEdusharing.style.removeProperty('float');
+                            currentEdusharing.setAttribute('data-mce-style', "");
+                        } else {
+                            currentEdusharing.style.float = inputAlignment;
+                            currentEdusharing.setAttribute('data-mce-style', 'float: ' + inputAlignment + ';');
+                        }
+                    }
+                    if (isSizeEditable && hasSizeChanged) {
                         eduImage.setAttribute('width', inputWidth);
                         eduImage.setAttribute('height', inputHeight);
-                        url.searchParams.set('width', inputWidth);
-                        url.searchParams.set('height', inputHeight);
                     }
-                }
-                if (hasAlignmentChanged || hasSizeChanged) {
-                    eduImage.setAttribute('src', url.toString());
-                    eduImage.setAttribute('data-edited', 1);
+                    if (hasAlignmentChanged || hasSizeChanged) {
+                        eduImage.setAttribute('src', url.toString());
+                        eduImage.setAttribute('data-edited', 1);
+                    }
+                } else {
+                    let style = '';
+                    if (inputAlignment !== 'none') {
+                        style = 'float:' + inputAlignment + ';';
+                    }
+                    if (url.searchParams.get('mediatype') === 'folder') {
+                        style = 'display:block;';
+                    }
+                    renderForPromise(`${component}/content`, {
+                        edusharingImg: true,
+                        edusharingRef: false,
+                        edusharingPreviewSrc: url.toString(),
+                        edusharingTitle: url.searchParams.get('title'),
+                        edusharingInsertCaption: window.document.getElementById('captionInput').value !== "",
+                        edusharingCaption: window.document.getElementById('captionInput').value,
+                        edusharingWidth: inputWidth.toString(),
+                        edusharingHeight: inputHeight.toString(),
+                        edusharingStyle: style,
+                        dataEdited: hasAlignmentChanged || hasSizeChanged
+                    }).then(result => {
+                        currentEdusharing.remove();
+                        if (paragraphToRemove !== null) {
+                            paragraphToRemove.remove();
+                            const nextParagraph = paragraphToRemove.nextSibling;
+                            if (nextParagraph !== null && nextParagraph.nodeName === 'P'
+                                && nextParagraph.hasChildNodes() && nextParagraph.firstChild.nodeName === 'BR'
+                                && nextParagraph.innerText === "") {
+                                nextParagraph.remove();
+                            }
+                        }
+                        editor.selection.moveToBookmark(openingSelection);
+                        editor.insertContent(result.html);
+                        editor.selection.moveToBookmark(openingSelection);
+                        return false;
+                    }).catch(error => window.console.log(error));
                 }
             });
         };
+        let existingCaption = null;
+        const nodeOptionsForm = window.document.getElementById('nodeOptionsForm');
+        const existingCaptionParagraph = currentEdusharing.querySelector('.edusharing_caption');
+        let paragraphToRemove = null;
+        if (isOldAttoElement) {
+            const nextSibling = currentEdusharing.nextSibling;
+            if (nextSibling !== null && nextSibling.nodeName === 'P' && nextSibling.innerText !== "") {
+                window.document.getElementById('eduCaptionText').innerHTML = nextSibling.innerText;
+                window.document.getElementById('eduAttoCaptionPrompt').classList.remove('d-none');
+                window.document.getElementById('eduCaptionContinueButton').classList.remove('d-none');
+                window.document.getElementById('eduSubmitButton').classList.add('d-none');
+                nodeOptionsForm.classList.add('d-none');
+                window.document.getElementById('eduCaptionContinueButton').addEventListener("click", () => {
+                    const useExistingCaption = window.document.querySelector('input[name="eduCaption"]:checked').value === '0';
+                    paragraphToRemove = useExistingCaption ? nextSibling : null;
+                    if (useExistingCaption) {
+                        window.document.getElementById('captionInput').value = nextSibling.innerText;
+                        existingCaption = nextSibling.innerText;
+                    }
+                    nodeOptionsForm.classList.remove('d-none');
+                    window.document.getElementById('eduAttoCaptionPrompt').classList.add('d-none');
+                    window.document.getElementById('eduCaptionContinueButton').classList.add('d-none');
+                    window.document.getElementById('eduSubmitButton').classList.remove('d-none');
+                });
+            } else {
+                nodeOptionsForm.classList.remove('d-none');
+            }
+        } else {
+            if (existingCaptionParagraph !== null) {
+                window.document.getElementById('captionInput').value = existingCaptionParagraph.innerHTML;
+                existingCaption = existingCaptionParagraph.innerHTML;
+            }
+            nodeOptionsForm.classList.remove('d-none');
+        }
         const submitButton = window.document.getElementById('eduSubmitButton');
         submitButton.disabled = false;
         submitButton.innerHTML = submitButton.getAttribute('data-secondary-title');
         let isSizeEditable = true;
         const modalTitle = root.querySelector('.modal-title');
         modalTitle.innerHTML = modalTitle.querySelector('input').value;
-        const nodeOptionsForm = window.document.getElementById('nodeOptionsForm');
         window.document.getElementById('repoButtonContainer').classList.add('d-none');
-        nodeOptionsForm.classList.remove('d-none');
         const eduImage = currentEdusharing.querySelector("img.edusharing_atto");
         if (eduImage === null || eduImage === undefined) {
             root.querySelector('.mform').classList.add('d-none');
@@ -173,12 +245,11 @@ const displayDialogue = async(editor) => {
             isSizeEditable = false;
         }
         window.document.querySelectorAll(".eduVersionRadio").forEach(item => item.classList.add('d-none'));
-
-        const existingCaptionParagraph = currentEdusharing.querySelector('.edusharing_caption');
-        const existingCaption = existingCaptionParagraph === null ? "" : existingCaptionParagraph.innerHTML;
-        window.document.getElementById('captionInput').value = existingCaption;
         window.document.getElementById('eduContentTitle').innerHTML = url.searchParams.get('title');
-        const alignment = currentEdusharing.style.float ?? 'none';
+        let alignment = currentEdusharing.style.float ?? 'none';
+        if (alignment === "" && isOldAttoElement) {
+            alignment = currentEdusharing.style.textAlign ?? 'none';
+        }
         if (alignment !== 'none') {
             window.document.getElementById('eduAlignment' + (alignment === 'right' ? '2' : '1')).checked = true;
         }
@@ -214,16 +285,30 @@ const displayDialogue = async(editor) => {
         };
     };
     const selection = editor.selection.getNode();
-    const currentEdusharing = selection.closest('.edusharing-placeholder');
+    let currentEdusharing = selection.closest('.edusharing-placeholder');
+    let isOldAttoElement = false;
+    if (currentEdusharing === null) {
+        if (selection.nodeName === 'IMG' && selection.classList.contains('edusharing_atto')) {
+            const parent = selection.parentNode;
+            if (parent.nodeName === 'P') {
+                currentEdusharing = parent;
+                isOldAttoElement = true;
+            }
+        } else if (selection.nodeName === 'P') {
+            const firstChild = selection.firstChild;
+            if (firstChild.nodeName === 'IMG' && firstChild.classList.contains('edusharing_atto')) {
+                currentEdusharing = selection;
+                isOldAttoElement = true;
+            }
+        }
+    }
     const isEditMode = currentEdusharing !== null;
-
     const modal = await ModalFactory.create({
         type: Modal.TYPE,
         large: true,
         removeOnClose: true
     });
     modal.show();
-
     const $root = modal.getRoot();
     const root = $root[0];
     if (isEditMode) {
