@@ -246,9 +246,9 @@ const displayDialogue = async(editor) => {
         }
         window.document.querySelectorAll(".eduVersionRadio").forEach(item => item.classList.add('d-none'));
         window.document.getElementById('eduContentTitle').innerHTML = url.searchParams.get('title');
-        let alignment = currentEdusharing.style.float ?? 'none';
-        if (alignment === "" && isOldAttoElement) {
-            alignment = currentEdusharing.style.textAlign ?? 'none';
+        let alignment = currentEdusharing.style.float === "" ? 'none' : currentEdusharing.style.float;
+        if (alignment === "none" && isOldAttoElement) {
+            alignment = currentEdusharing.style.textAlign === "" ? 'none' : currentEdusharing.style.textAlign;
         }
         if (alignment !== 'none') {
             window.document.getElementById('eduAlignment' + (alignment === 'right' ? '2' : '1')).checked = true;
