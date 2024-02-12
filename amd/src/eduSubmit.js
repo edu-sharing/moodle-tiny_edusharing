@@ -1,3 +1,11 @@
+/**
+ * Script eduSubmit.js
+ *
+ * This script contains all logic to be executed when the user saves the changes they made in the editor
+ * by clicking the "save changes" button.
+ * It also contains the logic for keeping score of es elements already present in the section opened.
+ */
+
 import {getCourseId} from "./options";
 import {addEduSharingInstance, deleteEduSharingInstance, updateInstance} from "./repository";
 import Config from 'core/config';

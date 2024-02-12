@@ -14,9 +14,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tiny edu-sharing Content configuration.
+ * Script ui.js
  *
- * @module      tiny_edusharing/commands
+ * Contains all logic for the modal
+ * - Insert form (opening repo, settings for object, inserting into editor)
+ * - Edit form (changing settings, detecting, handling and converting old atto objects)
+ *
+ * On edit, old atto es objects will be converted to the format used by tinyMCE in order to ensure backwards
+ * compatibility. Subsequently, they can no longer be edited using atto.
+ *
+ * @module      tiny_edusharing/ui
  * @copyright   2022 metaVentis GmbH <http://metaventis.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -54,8 +61,19 @@ const handleInsertSubmission = async(editor) => {
     const version = window.document.querySelector('input[name="eduVersion"]:checked').value;
     const caption = window.document.getElementById('captionInput').value;
     const alignment = window.document.querySelector('input[name="eduAlignment"]:checked').value;
-    const width = window.document.getElementById('eduWidth').value;
-    const height = window.document.getElementById('eduHeight').value;
+    let width;
+    let height;
+    if (window.document.getElementById('edusharingNoWidth').value === "true") {
+        const previewHeight = window.document.getElementById('eduPreviewImage').height;
+        const previewWidth = window.document.getElementById('eduPreviewImage').width;
+        const ratio = previewWidth / previewHeight;
+        width = 400;
+        height = 400 / ratio;
+    } else {
+        width = window.document.getElementById('eduWidth').value;
+        height = checkIfHeightApplicable(node.mediatype) ?
+            window.document.getElementById('eduHeight').value : "auto";
+    }
     let style = '';
     if (alignment !== 'none') {
         style = 'float:' + alignment + ';';
@@ -125,7 +143,7 @@ const displayDialogue = async(editor) => {
                         currentEdusharing.appendChild(newCaptionParagraph);
                     } else if (existingCaption !== null && newCaption !== "") {
                         existingCaptionParagraph.remove();
-                    } else {
+                    } else if (existingCaption !== null) {
                         existingCaption.innerHTML = newCaption;
                     }
                     if (hasAlignmentChanged) {
@@ -189,7 +207,7 @@ const displayDialogue = async(editor) => {
         let paragraphToRemove = null;
         if (isOldAttoElement) {
             const nextSibling = currentEdusharing.nextSibling;
-            if (nextSibling !== null && nextSibling.nodeName === 'P' && nextSibling.innerText !== "") {
+            if (nextSibling !== null && nextSibling.nodeName === 'P' && nextSibling.innerText.trim() !== "") {
                 window.document.getElementById('eduCaptionText').innerHTML = nextSibling.innerText;
                 window.document.getElementById('eduAttoCaptionPrompt').classList.remove('d-none');
                 window.document.getElementById('eduCaptionContinueButton').classList.remove('d-none');
@@ -235,16 +253,17 @@ const displayDialogue = async(editor) => {
         window.document.getElementById('eduPreviewImage').setAttribute('src', objectUrl);
         let url = new URL(objectUrl);
         const mediaType = url.searchParams.get('mediatype');
-        let width = 600;
-        let height = 400;
+        let width = 400;
+        let height = 600;
         if (!hideSizeOptions(mediaType)) {
-            width = parseInt(eduImage.getAttribute('width') ?? 600);
-            height = parseInt(eduImage.getAttribute('height') ?? 400);
+            width = parseInt(eduImage.getAttribute('width') ?? 400);
+            height = parseInt(eduImage.getAttribute('height') ?? 600);
             initSizeCalculation(width, height);
+            hideHeightInput(mediaType);
         } else {
             isSizeEditable = false;
         }
-        window.document.querySelectorAll(".eduVersionRadio").forEach(item => item.classList.add('d-none'));
+        window.document.getElementById("objectVersioningContainer").classList.add('d-none');
         window.document.getElementById('eduContentTitle').innerHTML = url.searchParams.get('title');
         let alignment = currentEdusharing.style.float === "" ? 'none' : currentEdusharing.style.float;
         if (alignment === "none" && isOldAttoElement) {
@@ -267,18 +286,22 @@ const displayDialogue = async(editor) => {
         const applyNodeListener = event => {
             if (event.data.event === "APPLY_NODE") {
                 const node = event.data.data;
-                const width = node.properties['ccm:width'] !== undefined ? Math.round(node.properties['ccm:width'][0]) : 600;
-                const height = node.properties['ccm:height'] !== undefined ? Math.round(node.properties['ccm:height'][0]) : 400;
+                const previewImage = window.document.getElementById('eduPreviewImage');
                 window.win.close();
                 checkVersioning(node);
                 window.document.getElementById('repoButtonContainer').classList.add('d-none');
                 window.document.getElementById('nodeOptionsForm').classList.remove('d-none');
                 window.document.getElementById('eduContentTitle').innerHTML = node.name ?? node.title;
-                window.document.getElementById('eduPreviewImage')
-                    .setAttribute('src', node.preview.url);
-                hideSizeOptions(node.mediatype);
+                previewImage.setAttribute('src', node.preview.url);
+                if (hideSizeOptions(node.mediatype)) {
+                    window.document.getElementById('edusharingNoWidth').value = "true";
+                } else {
+                    const width = node.properties['ccm:width'] !== undefined ? Math.round(node.properties['ccm:width'][0]) : 400;
+                    const height = node.properties['ccm:height'] !== undefined ? Math.round(node.properties['ccm:height'][0]) : 600;
+                    initSizeCalculation(width, height);
+                    hideHeightInput(node.mediatype);
+                }
                 hideCaptionInput(node.mediatype);
-                initSizeCalculation(width, height);
                 setNodeData(node);
                 window.document.getElementById('eduSubmitButton').disabled = false;
             }
@@ -329,6 +352,18 @@ const hideSizeOptions = mediaType => {
     }
     return false;
 };
+
+const hideHeightInput = mediaType => {
+    if (!checkIfHeightApplicable(mediaType)) {
+        const heightInput = window.document.getElementById('eduHeight');
+        heightInput.classList.add('d-none');
+        if (heightInput.labels) {
+            heightInput.labels.forEach(label => label.classList.add('d-none'));
+        }
+    }
+};
+
+const checkIfHeightApplicable = mediaType => mediaType !== "file-video";
 
 const hideCaptionInput = mediaType => {
     if (mediaType === "ref") {

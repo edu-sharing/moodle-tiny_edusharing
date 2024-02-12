@@ -14,7 +14,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tiny edu-sharing Content configuration.
+ * Script filterContent.js
+ *
+ * This script sets up the logic to be executed on opening the tinyMCE editor.
  *
  * @module      tiny_edusharing/filtercontent
  * @copyright   2022 metaVentis GmbH <http://metaventis.com>
