@@ -14,7 +14,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Tiny edu-sharing Content configuration.
+ * Script filterContent.js
+ *
+ * This script sets up the logic to be executed on opening the tinyMCE editor.
  *
  * @module      tiny_edusharing/filtercontent
  * @copyright   2022 metaVentis GmbH <http://metaventis.com>
@@ -36,6 +38,10 @@ export const setup = async(editor) => {
         // The SetContent event is called whenever content is changed by actions such as initial load, paste, undo, etc.
         editor.getBody().querySelectorAll('.edusharing-placeholder:not([contenteditable])').forEach((node) => {
             node.contentEditable = false;
+        });
+        // Old atto preview links need to be redirected in case the atto plugin is not installed.
+        editor.getBody().querySelectorAll('img.edusharing_atto').forEach(node => {
+            node.src = node.src.replace('/lib/editor/atto/plugins/edusharing/', '/mod/edusharing/');
         });
     });
 };

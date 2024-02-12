@@ -22,8 +22,9 @@
  */
 
 import {getButtonImage} from 'editor_tiny/utils';
-import {handleAction} from './ui';
+import {handleAction, initInstructionGif} from './ui';
 import {get_string as getString} from 'core/str';
+import {initEventHandler, initExistingElements} from './eduSubmit';
 import {
     component,
     buttonName,
@@ -40,6 +41,11 @@ export const getSetup = async() => {
     ]);
 
     return (editor) => {
+        editor.on('init', () => {
+            initExistingElements(editor);
+            initEventHandler(editor);
+            initInstructionGif();
+        });
         // Register the edu-sharing Icon.
         editor.ui.registry.addIcon(icon, buttonImage.html);
 
@@ -50,7 +56,6 @@ export const getSetup = async() => {
             tooltip: buttonText,
             onAction: () => handleAction(editor),
             onSetup: (api) => {
-                // Set the button to be active if the current selection matches the edu-sharing formatter registered above during PreInit.
                 api.setActive(editor.formatter.match('edusharing'));
                 const changed = editor.formatter.formatChanged('edusharing', (state) => api.setActive(state));
                 return () => changed.unbind();

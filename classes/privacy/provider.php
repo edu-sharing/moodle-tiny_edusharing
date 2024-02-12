@@ -24,7 +24,20 @@
 
 namespace tiny_edusharing\privacy;
 
+/**
+ * Class provider
+ *
+ * @package     tiny_edusharing
+ * @copyright   2023 metaVentis GmbH <http://metaventis.com>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class provider implements \core_privacy\local\metadata\null_provider {
+
+    /**
+     * Function get_reason
+     *
+     * @return string
+     */
     public static function get_reason(): string {
         return 'privacy:metadata';
     }

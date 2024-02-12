@@ -1,8 +1,22 @@
 # edu-sharing Tiny-Editor #
 
-TODO Describe the plugin shortly here.
+The edu-sharing tiny editor plugin is used to add edu-sharing content when using tiny.
 
-TODO Provide more detailed description here.
+The plugin adds a button to the tiny button bar. After clicking it, the user can open the connected
+edu-sharing repository and choose or upload a file of his choice. Having done so, they can choose from some 
+display options, such as size and version, and add the content to the editor body.
+
+## Dependencies ##
+
+The edu-sharing tiny editor plugin depends on the edu-sharing activity plugin.
+
+## Installing from moodle plugin directory ##
+
+1. Log in to your Moodle site as admin and go to _Site administration >
+   Plugins > Install plugins_.
+2. Click the button to _Install plugins from the Moodle plugins directory_
+3. Search for the edusharing tiny plugin
+4. Finish the installation
 
 ## Installing via uploaded ZIP file ##
 
@@ -16,9 +30,9 @@ TODO Provide more detailed description here.
 
 The plugin can be also installed by putting the contents of this directory to
 
-    {your/moodle/dirroot}/lib/editor/tinymce/plugins/edusharing
+    {your/moodle/dirroot}/lib/editor/tiny/plugins/edusharing
 
-Afterwards, log in to your Moodle site as an admin and go to _Site administration >
+Afterward, log in to your Moodle site as an admin and go to _Site administration >
 Notifications_ to complete the installation.
 
 Alternatively, you can run
@@ -29,7 +43,7 @@ to complete the installation from the command line.
 
 ## License ##
 
-2022 metaVentis GmbH <http://metaventis.com>
+2023 metaVentis GmbH <http://metaventis.com>
 
 This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

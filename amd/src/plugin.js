@@ -29,7 +29,7 @@ import * as Commands from './commands';
 import * as Configuration from './configuration';
 import * as Options from './options';
 
-// Setup the edu-sharing Plugin to add a button and menu option.
+// Set up the edu-sharing Plugin to add a button and menu option.
 export default new Promise(async(resolve) => {
     const [
         tinyMCE,
@@ -47,10 +47,10 @@ export default new Promise(async(resolve) => {
         // Register options.
         Options.register(editor);
 
-        // Setup the Formatter.
+        // Set up the Formatter.
         FilterContent.setup(editor);
 
-        // Setup the Commands (buttons, menu items, and so on).
+        // Set up the Commands (buttons, menu items, and so on).
         setupCommands(editor);
 
         return pluginMetadata;
