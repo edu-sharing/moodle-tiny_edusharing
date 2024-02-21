@@ -44,9 +44,9 @@ $string['width'] = 'Width';
 $string['nonVersionableHint'] = 'This object cannot be versioned since it is either a published copy or a reference to a collection.';
 $string['editModalTitle'] = 'Edit edu-sharing content';
 $string['noEditInfo'] = 'The current selection cannot be edited as it either contains no edu-sharing object or the selected edu-sharing object is not editable';
-$string['attoCaptionPrompt'] = 'The selected element was inserted using the old editor (Atto). 
-    After saving the changes, it will be converted to the new format and retain all functionalities and properties.
-    Directly under the element a text element was found which possibly contains the caption. 
+$string['attoCaptionPrompt'] = 'The selected element was inserted using the old editor (Atto).
+     After saving the changes, it will be converted to the new format and retain all functionalities and properties.
+     Directly under the element a text element was found which possibly contains the caption.
     Please review the text below and decide whether you would like to use (and possibly edit) it as the caption:';
 $string['thisCaption'] = 'Yes, this is the caption.';
 $string['otherCaption'] = 'No, i would like another or no caption.';

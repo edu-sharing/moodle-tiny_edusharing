@@ -6,6 +6,8 @@ The plugin adds a button to the tiny button bar. After clicking it, the user can
 edu-sharing repository and choose or upload a file of his choice. Having done so, they can choose from some 
 display options, such as size and version, and add the content to the editor body.
 
+Furthermore, the user can edit properties of their inserted objects such as caption, width and height.
+
 ## Dependencies ##
 
 The edu-sharing tiny editor plugin depends on the edu-sharing activity plugin.

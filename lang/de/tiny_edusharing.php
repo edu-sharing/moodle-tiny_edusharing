@@ -44,9 +44,9 @@ $string['width'] = 'Breite';
 $string['nonVersionableHint'] = 'Dieses Objekt kann nicht versioniert werden, da es sich um eine veröffentlichte Kopie oder eine Sammlungsreferenz handelt.';
 $string['editModalTitle'] = 'Edu-Sharing-Inhalt bearbeiten';
 $string['noEditInfo'] = 'Die aktuelle Auswahl kann nicht bearbeitet werden, da sie entweder kein Edu-Sharing-Objekt entält oder das enthaltene Edu-Sharing-Objekt von der Bearbeitung ausgeschlossen ist.';
-$string['attoCaptionPrompt'] = 'Das zum Bearbeiten ausgewählte Element wurde mit dem zuvor genutzten Editor (Atto) eingefügt. 
-    Es wird während des Speicherns dem neuen Standard angepasst und ist danach weiterhin ohne Einschränkungen sicht- und editierbar.
-    Unter dem Element wurde Text erkannt, bei dem es sich möglicherweise um die Bildunterschrift handelt. 
+$string['attoCaptionPrompt'] = 'Das zum Bearbeiten ausgewählte Element wurde mit dem zuvor genutzten Editor (Atto) eingefügt.
+     Es wird während des Speicherns dem neuen Standard angepasst und ist danach weiterhin ohne Einschränkungen sicht- und editierbar.
+     Unter dem Element wurde Text erkannt, bei dem es sich möglicherweise um die Bildunterschrift handelt.
     Bitte überprüfen Sie den Text und entscheiden sich, ob Sie diesen Text als Bildunterschrift verwenden und gegebenenfalls bearbeiten möchten:';
 $string['thisCaption'] = 'Ja, das ist die Bildunterschrift.';
 $string['otherCaption'] = 'Nein, ich möchte eine andere oder keine Bildunterschrift.';
