@@ -24,6 +24,8 @@
 
 namespace tiny_edusharing\privacy;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Class provider
  *
