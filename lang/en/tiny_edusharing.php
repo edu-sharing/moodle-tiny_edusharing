@@ -18,7 +18,7 @@
  * Strings for component 'tiny_edusharing', language 'en'.
  *
  * @package     tiny_edusharing
- * @copyright   2022 metaVentis GmbH <http://metaventis.com>
+ * @copyright   2024 metaVentis GmbH <http://metaventis.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

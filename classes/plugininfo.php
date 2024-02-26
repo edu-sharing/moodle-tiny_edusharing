@@ -27,7 +27,7 @@ use editor_tiny\plugin_with_configuration;
  * Tiny edu-sharing plugin for Moodle.
  *
  * @package     tiny_edusharing
- * @copyright   2022 metaVentis GmbH <http://metaventis.com>
+ * @copyright   2024 metaVentis GmbH <http://metaventis.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plugininfo extends plugin implements

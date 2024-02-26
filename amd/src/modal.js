@@ -17,7 +17,7 @@
  * edu-sharing Modal for Tiny.
  *
  * @module      tiny_edusharing/modal
- * @copyright   2022 metaVentis GmbH <http://metaventis.com>
+ * @copyright   2024 metaVentis GmbH <http://metaventis.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

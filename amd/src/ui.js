@@ -24,7 +24,7 @@
  * compatibility. Subsequently, they can no longer be edited using atto.
  *
  * @module      tiny_edusharing/ui
- * @copyright   2022 metaVentis GmbH <http://metaventis.com>
+ * @copyright   2024 metaVentis GmbH <http://metaventis.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

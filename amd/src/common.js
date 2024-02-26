@@ -17,8 +17,8 @@
  * Tiny edu-sharing Common values.
  *
  * @module      tiny_edusharing/common
- * @copyright   2022 metaVentis GmbH <http://metaventis.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright   2024 metaVentis GmbH <http://metaventis.com>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 export default {

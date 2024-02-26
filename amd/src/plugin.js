@@ -17,7 +17,7 @@
  * Tiny edu-sharing plugin for Moodle.
  *
  * @module      tiny_edusharing/plugin
- * @copyright   2022 metaVentis GmbH <http://metaventis.com>
+ * @copyright   2024 metaVentis GmbH <http://metaventis.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 import {getTinyMCE} from 'editor_tiny/loader';

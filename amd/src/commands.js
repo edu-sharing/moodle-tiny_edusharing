@@ -17,8 +17,8 @@
  * Tiny edu-sharing Content configuration.
  *
  * @module      tiny_edusharing/commands
- * @copyright   2022 metaVentis GmbH <http://metaventis.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright   2024 metaVentis GmbH <http://metaventis.com>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 import {getButtonImage} from 'editor_tiny/utils';
