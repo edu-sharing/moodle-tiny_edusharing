@@ -30,6 +30,7 @@ import * as Configuration from './configuration';
 import * as Options from './options';
 
 // Set up the edu-sharing Plugin to add a button and menu option.
+// eslint-disable-next-line no-async-promise-executor
 export default new Promise(async(resolve) => {
     const [
         tinyMCE,
