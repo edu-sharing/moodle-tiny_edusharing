@@ -58,7 +58,5 @@ test:
     - moodle-plugin-ci codechecker
     - moodle-plugin-ci validate
     - moodle-plugin-ci savepoints
-    # Mustache linting currently leads to error - known bug in moodle plugin ci
-    #- moodle-plugin-ci mustache
     - moodle-plugin-ci grunt
     - moodle-plugin-ci phpdoc
