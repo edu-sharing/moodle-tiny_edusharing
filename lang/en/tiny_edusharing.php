@@ -51,3 +51,4 @@ $string['attoCaptionPrompt'] = 'The selected element was inserted using the old 
 $string['thisCaption'] = 'Yes, this is the caption.';
 $string['otherCaption'] = 'No, i would like another or no caption.';
 $string['continue'] = 'Continue edit';
+$string['helplinktext'] = 'Edusharing';

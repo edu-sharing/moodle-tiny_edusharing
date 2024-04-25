@@ -51,3 +51,4 @@ $string['attoCaptionPrompt'] = 'Das zum Bearbeiten ausgewählte Element wurde mi
 $string['thisCaption'] = 'Ja, das ist die Bildunterschrift.';
 $string['otherCaption'] = 'Nein, ich möchte eine andere oder keine Bildunterschrift.';
 $string['continue'] = 'Weiter zur Bearbeitung';
+$string['helplinktext'] = 'Edusharing';
