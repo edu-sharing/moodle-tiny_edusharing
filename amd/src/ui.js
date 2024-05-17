@@ -400,7 +400,7 @@ const checkVersioning = (node) => {
             .forEach(item => item.classList.add('d-none'));
     }
     if (hasVersion) {
-        window.document.getElementById('eduversion2').value = node.properties['cclom:version'][0];
+        window.document.getElementById('eduVersion2').value = node.properties['cclom:version'][0];
     }
 };
 
