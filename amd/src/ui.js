@@ -436,7 +436,7 @@ const openRepo = (repoUrl, repoTarget, courseId) => {
     };
     getTicket(ajaxParams)
         .then(response => {
-            repoUrl += repoTarget + '?reurl=WINDOW&applyDirectories=true&ticket=' + response.ticket;
+            repoUrl += repoTarget + '?reurl=WINDOW&applyDirectories=false&ticket=' + response.ticket;
             window.win.location.href = repoUrl;
             return null;
         })
