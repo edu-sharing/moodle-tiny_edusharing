@@ -33,7 +33,7 @@ export const initEventHandler = (editor) => {
     const container = editor.getContainer();
     const form = container.closest("form");
     form.addEventListener('submit', async(event) => {
-        if (event.submitter.id === "id_submitbutton") {
+        if (event.submitter.id === "id_submitbutton" || event.submitter.id === "id_submitbutton2") {
             event.preventDefault();
             await convertForSubmit(editor);
             form.submit();
