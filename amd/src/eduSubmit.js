@@ -32,13 +32,15 @@ import Config from 'core/config';
 export const initEventHandler = (editor) => {
     const container = editor.getContainer();
     const form = container.closest("form");
-    form.addEventListener('submit', async(event) => {
-        if (event.submitter.id === "id_submitbutton" || event.submitter.id === "id_submitbutton2") {
-            event.preventDefault();
-            await convertForSubmit(editor);
-            form.submit();
-        }
-    });
+    if (form !== null && typeof form.submit === "function") {
+        form.addEventListener('submit', async(event) => {
+            if (event.submitter.id === "id_submitbutton" || event.submitter.id === "id_submitbutton2") {
+                event.preventDefault();
+                await convertForSubmit(editor);
+                form.submit();
+            }
+        });
+    }
 };
 
 /**
@@ -85,6 +87,8 @@ const convertForSubmit = async(editor) => {
                     }
                 };
                 let response = await addEduSharingInstance(ajaxParams);
+                window.console.log("After createion");
+                window.console.log(response);
                 if (response.id !== undefined) {
                     let isImage = domNode.nodeName.toLowerCase() === 'img';
                     let previewUrl = `${Config.wwwroot}/mod/edusharing/preview.php`
