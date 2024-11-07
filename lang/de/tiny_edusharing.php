@@ -22,33 +22,33 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['buttontitle'] = 'Inhalte aus edu-sharing einfügen';
-$string['pluginname'] = 'edu-sharing TinyMCE-Editor';
-$string['modaltitle'] = 'Edu-Sharing Inhalt einfügen';
-$string['instructions'] = 'Sie können Inhalte einfügen, indem Sie das Repository öffnen und ein Object wählen.';
-$string['openRepo'] = 'Edu-sharing öffnen';
-$string['browserepository'] = 'Edu-sharing durchsuchen';
-$string['insert'] = 'Edu-Sharing Inhalt einfügen';
-$string['edit'] = 'Edu-Sharing Inhalt anpassen';
-$string['newestVersion'] = 'Neueste Version';
-$string['thisVersion'] = 'Diese Version';
-$string['objectVersioning'] = 'Objektversion';
-$string['caption'] = 'Bildunterschrift';
 $string['alignment'] = 'Ausrichtung';
-$string['floatLeft'] = 'Links';
-$string['floatRight'] = 'Rechts';
 $string['alignmentNone'] = 'Keine';
-$string['dimensions'] = 'Maße';
-$string['height'] = 'Höhe';
-$string['width'] = 'Breite';
-$string['nonVersionableHint'] = 'Dieses Objekt kann nicht versioniert werden, da es sich um eine veröffentlichte Kopie oder eine Sammlungsreferenz handelt.';
-$string['editModalTitle'] = 'Edu-Sharing-Inhalt bearbeiten';
-$string['noEditInfo'] = 'Die aktuelle Auswahl kann nicht bearbeitet werden, da sie entweder kein Edu-Sharing-Objekt entält oder das enthaltene Edu-Sharing-Objekt von der Bearbeitung ausgeschlossen ist.';
 $string['attoCaptionPrompt'] = 'Das zum Bearbeiten ausgewählte Element wurde mit dem zuvor genutzten Editor (Atto) eingefügt.
      Es wird während des Speicherns dem neuen Standard angepasst und ist danach weiterhin ohne Einschränkungen sicht- und editierbar.
      Unter dem Element wurde Text erkannt, bei dem es sich möglicherweise um die Bildunterschrift handelt.
     Bitte überprüfen Sie den Text und entscheiden sich, ob Sie diesen Text als Bildunterschrift verwenden und gegebenenfalls bearbeiten möchten:';
-$string['thisCaption'] = 'Ja, das ist die Bildunterschrift.';
-$string['otherCaption'] = 'Nein, ich möchte eine andere oder keine Bildunterschrift.';
+$string['browserepository'] = 'Edu-sharing durchsuchen';
+$string['buttontitle'] = 'Inhalte aus edu-sharing einfügen';
+$string['caption'] = 'Bildunterschrift';
 $string['continue'] = 'Weiter zur Bearbeitung';
+$string['dimensions'] = 'Maße';
+$string['edit'] = 'Edu-Sharing Inhalt anpassen';
+$string['editModalTitle'] = 'Edu-Sharing-Inhalt bearbeiten';
+$string['floatLeft'] = 'Links';
+$string['floatRight'] = 'Rechts';
+$string['height'] = 'Höhe';
 $string['helplinktext'] = 'Edusharing';
+$string['insert'] = 'Edu-Sharing Inhalt einfügen';
+$string['instructions'] = 'Sie können Inhalte einfügen, indem Sie das Repository öffnen und ein Object wählen.';
+$string['modaltitle'] = 'Edu-Sharing Inhalt einfügen';
+$string['newestVersion'] = 'Neueste Version';
+$string['noEditInfo'] = 'Die aktuelle Auswahl kann nicht bearbeitet werden, da sie entweder kein Edu-Sharing-Objekt entält oder das enthaltene Edu-Sharing-Objekt von der Bearbeitung ausgeschlossen ist.';
+$string['nonVersionableHint'] = 'Dieses Objekt kann nicht versioniert werden, da es sich um eine veröffentlichte Kopie oder eine Sammlungsreferenz handelt.';
+$string['objectVersioning'] = 'Objektversion';
+$string['openRepo'] = 'Edu-sharing öffnen';
+$string['otherCaption'] = 'Nein, ich möchte eine andere oder keine Bildunterschrift.';
+$string['pluginname'] = 'edu-sharing TinyMCE-Editor';
+$string['thisCaption'] = 'Ja, das ist die Bildunterschrift.';
+$string['thisVersion'] = 'Diese Version';
+$string['width'] = 'Breite';
