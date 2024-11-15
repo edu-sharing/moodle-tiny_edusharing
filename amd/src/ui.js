@@ -285,6 +285,21 @@ const displayDialogue = async(editor) => {
         });
         const applyNodeListener = event => {
             if (event.data.event === "APPLY_NODE") {
+                const prepareModal = () => {
+                    if (hideSizeOptions(node.mediatype)) {
+                        window.document.getElementById('edusharingNoWidth').value = "true";
+                    } else {
+                        const width = node.properties['ccm:width'] !== undefined
+                            ? Math.round(node.properties['ccm:width'][0]) : 400;
+                        const height = node.properties['ccm:height'] !== undefined
+                            ? Math.round(node.properties['ccm:height'][0]) : 600;
+                        initSizeCalculation(width, height);
+                        hideHeightInput(node.mediatype);
+                    }
+                    hideCaptionInput(node.mediatype);
+                    setNodeData(node);
+                    window.document.getElementById('eduSubmitButton').disabled = false;
+                };
                 const node = event.data.data;
                 const previewImage = window.document.getElementById('eduPreviewImage');
                 window.win.close();
@@ -292,18 +307,27 @@ const displayDialogue = async(editor) => {
                 window.document.getElementById('repoButtonContainer').classList.add('d-none');
                 window.document.getElementById('nodeOptionsForm').classList.remove('d-none');
                 window.document.getElementById('eduContentTitle').innerHTML = node.name ?? node.title;
-                previewImage.setAttribute('src', node.preview.url);
-                if (hideSizeOptions(node.mediatype)) {
-                    window.document.getElementById('edusharingNoWidth').value = "true";
-                } else {
-                    const width = node.properties['ccm:width'] !== undefined ? Math.round(node.properties['ccm:width'][0]) : 400;
-                    const height = node.properties['ccm:height'] !== undefined ? Math.round(node.properties['ccm:height'][0]) : 600;
-                    initSizeCalculation(width, height);
-                    hideHeightInput(node.mediatype);
-                }
-                hideCaptionInput(node.mediatype);
-                setNodeData(node);
-                window.document.getElementById('eduSubmitButton').disabled = false;
+                const courseId = getCourseId(editor);
+                const ajaxParams = {
+                    eduTicketStructure: {
+                        courseId: courseId
+                    }
+                };
+                getTicket(ajaxParams)
+                    .then(response => {
+                        const previewUrl = new URL(node.preview.url);
+                        const queryData = new URLSearchParams(previewUrl.search.slice(1));
+                        queryData.set("ticket", response.ticket);
+                        const newUrl = new URL(node.preview.url);
+                        newUrl.search = queryData.toString();
+                        previewImage.setAttribute('src', newUrl.toString());
+                        prepareModal();
+                        return null;
+                    })
+                    .fail(() => {
+                        previewImage.setAttribute('src', node.preview.url);
+                        prepareModal();
+                    });
             }
         };
     };
