@@ -83,6 +83,16 @@ const handleInsertSubmission = async(editor) => {
     }
 
     let title = node.title || node.name;
+    const courseId = getCourseId(editor);
+    const ajaxParams = {
+        eduTicketStructure: {
+            courseId: courseId
+        }
+    };
+    const ticket = await getTicket(ajaxParams).catch(error => {
+        window.console.error(error);
+        return '';
+    });
 
     let url = new URL(node.previewUrl);
     url.searchParams.set('caption', caption);
@@ -91,7 +101,9 @@ const handleInsertSubmission = async(editor) => {
     url.searchParams.set('mimetype', node.mimetype);
     url.searchParams.set('window_version', version);
     url.searchParams.set('title', title);
-
+    if (ticket !== '') {
+        url.searchParams.set('ticket', ticket.ticket);
+    }
     let img = false;
     let ref = false;
 
