@@ -80,6 +80,7 @@ class plugininfo extends plugin implements
             'repoUrl' => trim(get_config('edusharing', 'application_cc_gui_url')),
             'repoTarget' => get_config('edusharing', 'repo_target'),
             'courseId' => $COURSE->id,
+            'enableRepoTargetChooser' => (bool)get_config('edusharing', 'enable_repo_target_chooser'),
         ];
     }
 }

@@ -65,11 +65,22 @@
                 <div class="row">
                     <div class="col-6">
                         <div class="pb-2">
-                            {{#str}} instructions, tiny_edusharing{{/str}}
+                            <span class="eduRepoTargetChooserDisabled d-none">
+                                {{#str}} instructions, tiny_edusharing{{/str}}
+                            </span>
+                            <span class="eduRepoTargetChooserEnabled d-none">
+                                {{#str}} instructionsChooser, tiny_edusharing{{/str}}
+                            </span>
                         </div>
-                        <button class="btn btn-primary" type="button" data-target="edusharing">
-                            {{#str}} browserepository, tiny_edusharing{{/str}}</button>
-                    </div>
+                            <button id="eduRepoButton" class="eduRepoTargetChooserDisabled btn btn-primary d-none" type="button">
+                                {{#str}} instructions_chooser, tiny_edusharing{{/str}}
+                            </button>
+                            <div id="eduRepoButtonChooser" class="eduRepoTargetChooserEnabled btn-group d-none" role="group" aria-label="Edu-Sharing Repository Target Chooser">
+                                <button type="button" class="btn btn-primary" data-target="search">{{#str}} repoSearch, edusharing{{/str}}</button>
+                                <button type="button" class="btn btn-primary" data-target="workspace">{{#str}} repoWorkspace, edusharing{{/str}}</button>
+                                <button type="button" class="btn btn-primary" data-target="collections">{{#str}} repoCollection, edusharing{{/str}}</button>
+                            </div>
+                        </div>
                     <div class="col-6 p-1">
                         <img id="eduInstructionGif" src="/lib/editor/tiny/plugins/edusharing/pix/help_en.gif" alt="edu-sharing animated instructions" width="100%" height="auto">
                     </div>

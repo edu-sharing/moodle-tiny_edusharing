@@ -41,6 +41,7 @@ $string['height'] = 'Hauteur';
 $string['helplinktext'] = 'edu-sharing';
 $string['insert'] = 'Insérer un contenu edu-sharing';
 $string['instructions'] = 'Vous pouvez insérer des objets en ouvrant le repository et en sélectionnant un objet.';
+$string['instructionsChooser'] = 'Vous pouvez insérer des objets en ouvrant une des pages du repository et en appliquant un élément.';
 $string['modaltitle'] = 'Insérer un contenu edu-sharing';
 $string['newestVersion'] = 'Dernière version';
 $string['noEditInfo'] = 'La sélection actuelle ne peut pas être éditée, soit parce qu\'elle ne contient pas d\'objet edu-sharing, soit parce que l\'objet edu-sharing qu\'elle contient est exclu de l\'édition.';

@@ -41,6 +41,7 @@ $string['height'] = 'Height';
 $string['helplinktext'] = 'Edusharing';
 $string['insert'] = 'Insert edu-sharing content';
 $string['instructions'] = 'You can insert edu-sharing content by opening the repository and applying an item.';
+$string['instructionsChooser'] = 'You can insert edu-sharing content by opening one of the repository pages and applying an item.';
 $string['modaltitle'] = 'Insert edu-sharing content';
 $string['newestVersion'] = 'Newest version';
 $string['noEditInfo'] = 'The current selection cannot be edited as it either contains no edu-sharing object or the selected edu-sharing object is not editable';

@@ -29,7 +29,7 @@
  */
 
 import {component} from './common';
-import {getCourseId, getRepoTarget, getRepoUrl} from './options';
+import {getCourseId, getRepoTarget, getRepoUrl, getEnableRepoTargetChooser} from './options';
 
 import {renderForPromise} from 'core/templates';
 import Modal from 'tiny_edusharing/modal';
@@ -287,14 +287,31 @@ const displayDialogue = async(editor) => {
         addEditSubmitHandler();
     };
     const prepareInsertModal = () => {
-        root.addEventListener('click', (e) => {
-            const openRepoButton = e.target.closest('[data-target="edusharing"]');
-            if (openRepoButton) {
-                const repoUrl = getRepoUrl(editor);
+        const enableRepoTargetChooser = getEnableRepoTargetChooser(editor);
+        const repoUrl = getRepoUrl(editor);
+        if (enableRepoTargetChooser) {
+            const chooserEnabledDomElements = window.document.querySelectorAll('.eduRepoTargetChooserEnabled');
+            for (const chooserEnabledDomElement of chooserEnabledDomElements) {
+                chooserEnabledDomElement.classList.remove('d-none');
+            }
+            const buttonGroupContainer = window.document.getElementById('eduRepoButtonChooser');
+            for (const child of buttonGroupContainer.children) {
+                child.addEventListener('click', () => {
+                    openRepo(repoUrl, child.getAttribute('data-target'), getCourseId(editor));
+                    window.addEventListener("message", applyNodeListener);
+                });
+            }
+        } else {
+            const chooserDisabledDomElements = window.document.querySelectorAll('.eduRepoTargetChooserDisabled');
+            for (const chooserDisabledDomElement of chooserDisabledDomElements) {
+                chooserDisabledDomElement.classList.remove('d-none');
+            }
+            const repoButton = window.document.getElementById('eduRepoButton');
+            repoButton.addEventListener('click', () => {
                 openRepo(repoUrl, getRepoTarget(editor), getCourseId(editor));
                 window.addEventListener("message", applyNodeListener);
-            }
-        });
+            });
+        }
         const applyNodeListener = event => {
             if (event.data.event === "APPLY_NODE") {
                 const prepareModal = () => {
