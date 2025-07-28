@@ -81,6 +81,7 @@ class plugininfo extends plugin implements
             'repoTarget' => get_config('edusharing', 'repo_target'),
             'courseId' => $COURSE->id,
             'enableRepoTargetChooser' => (bool)get_config('edusharing', 'enable_repo_target_chooser'),
+            'repoId' => get_config('edusharing', 'application_homerepid'),
         ];
     }
 }
