@@ -37,6 +37,13 @@ export const initEventHandler = (editor) => {
             if (event.submitter.id === "id_submitbutton" || event.submitter.id === "id_submitbutton2") {
                 event.preventDefault();
                 await convertForSubmit(editor);
+
+                submitter = document.createElement("input");
+                submitter.type = "hidden";
+                submitter.name = event.submitter.name;
+                submitter.value = event.submitter.value;
+                form.appendChild(submitter);
+
                 form.submit();
             }
         });
