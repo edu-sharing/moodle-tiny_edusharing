@@ -35,6 +35,7 @@ $string['continue'] = 'Continue edit';
 $string['dimensions'] = 'Dimensions';
 $string['edit'] = 'Edit edu-sharing content';
 $string['editModalTitle'] = 'Edit edu-sharing content';
+$string['edusharing:use'] = 'Use Edu-Sharing TinyMCE editor plugin';
 $string['floatLeft'] = 'Float left';
 $string['floatRight'] = 'Float right';
 $string['height'] = 'Height';

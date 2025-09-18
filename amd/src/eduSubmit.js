@@ -240,7 +240,7 @@ const getIframeReplacementContent = async(editor, domNode) => {
         const url = new URL(iframeSrc);
         const urlSearchParams = url.searchParams;
         const nodeId = urlSearchParams.get('node_id');
-        const version = urlSearchParams.get('version');
+        const version = urlSearchParams.get('version') ?? '0';
         const mimeType = urlSearchParams.get('mimetype');
         const title = domNode.getAttribute('title');
         const mediaType = domNode.getAttribute('data-mediatype');
@@ -251,7 +251,7 @@ const getIframeReplacementContent = async(editor, domNode) => {
             encodeURIComponent(getRepoId(editor)) +
             '/' +
             encodeURIComponent(nodeId);
-        if (nodeId && version) {
+        if (nodeId) {
             const ajaxParams = {
                 eduStructure: {
                     name: title,

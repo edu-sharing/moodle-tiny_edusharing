@@ -35,6 +35,7 @@ $string['continue'] = 'Weiter zur Bearbeitung';
 $string['dimensions'] = 'Maße';
 $string['edit'] = 'Edu-Sharing Inhalt anpassen';
 $string['editModalTitle'] = 'Edu-Sharing-Inhalt bearbeiten';
+$string['edusharing:use'] = 'Edu-Sharing TinyMCE-Editor Plugin verwenden';
 $string['floatLeft'] = 'Links';
 $string['floatRight'] = 'Rechts';
 $string['height'] = 'Höhe';

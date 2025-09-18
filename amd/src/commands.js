@@ -22,7 +22,7 @@
  */
 
 import {getButtonImage} from 'editor_tiny/utils';
-import {handleAction, initInstructionGif} from './ui';
+import {handleAction} from './ui';
 import {get_string as getString} from 'core/str';
 import {initEventHandler, initExistingElements} from './eduSubmit';
 import {
@@ -44,7 +44,6 @@ export const getSetup = async() => {
         editor.on('init', () => {
             initExistingElements(editor);
             initEventHandler(editor);
-            initInstructionGif();
         });
         // Register the edu-sharing Icon.
         editor.ui.registry.addIcon(icon, buttonImage.html);

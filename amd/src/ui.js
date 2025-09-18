@@ -95,8 +95,6 @@ const handleInsertSubmission = async(editor) => {
     });
 
     let url = new URL(node.previewUrl);
-    window.console.log("OURL");
-    window.console.log(node.objectUrl);
     url.searchParams.set('caption', caption);
     url.searchParams.set('object_url', node.objectUrl);
     url.searchParams.set('mediatype', node.mediatype);
@@ -397,6 +395,7 @@ const displayDialogue = async(editor) => {
             handleInsertSubmission(editor);
         });
     }
+    initInstructionGif();
 };
 
 const hideSizeOptions = mediaType => {
