@@ -36,7 +36,7 @@ export const getSetup = async() => {
         buttonText,
         buttonImage,
     ] = await Promise.all([
-        getString('buttontitle', component),
+        getString('edu_tiny_buttontitle', component),
         getButtonImage('icon', component),
     ]);
 

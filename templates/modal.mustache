@@ -36,25 +36,25 @@
 {{< core/modal }}
 
     {{$title}}
-        {{#str}} modaltitle, tiny_edusharing {{/str}}
-        <input type="hidden" value="{{#str}} editModalTitle, tiny_edusharing{{/str}}"/>
+        {{#str}} edu_tiny_modaltitle, tiny_edusharing {{/str}}
+        <input type="hidden" value="{{#str}} edu_tiny_editModalTitle, tiny_edusharing {{/str}}"/>
     {{/title}}
 
     {{$body}}
         <div class="p-2 d-none" id="eduAttoCaptionPrompt">
             <div class="alert alert-warning" role="alert">
-                <p>{{#str}} attoCaptionPrompt, tiny_edusharing{{/str}}</p>
+                <p>{{#str}} edu_tiny_attoCaptionPrompt, tiny_edusharing{{/str}}</p>
                 <p id="eduCaptionText"></p>
                 <div class="form-check eduCaptionRadio">
                     <input class="form-check-input" type="radio" name="eduCaption" id="eduCaption1" value="0" checked>
                     <label class="form-check-label" for="eduCaption1">
-                        {{#str}} thisCaption, tiny_edusharing{{/str}}
+                        {{#str}} edu_tiny_thisCaption, tiny_edusharing{{/str}}
                     </label>
                 </div>
                 <div class="form-check eduCaptionRadio">
                     <input class="form-check-input" type="radio" name="eduCaption" id="eduCaption2" value="1">
                     <label class="form-check-label" for="eduCaption2">
-                        {{#str}} otherCaption, tiny_edusharing{{/str}}
+                        {{#str}} edu_tiny_otherCaption, tiny_edusharing{{/str}}
                     </label>
                 </div>
             </div>
@@ -66,14 +66,14 @@
                     <div class="col-6">
                         <div class="pb-2">
                             <span class="eduRepoTargetChooserDisabled d-none">
-                                {{#str}} instructions, tiny_edusharing{{/str}}
+                                {{#str}} edu_tiny_instructions, tiny_edusharing{{/str}}
                             </span>
                             <span class="eduRepoTargetChooserEnabled d-none">
-                                {{#str}} instructionsChooser, tiny_edusharing{{/str}}
+                                {{#str}} edu_tiny_instructionsChooser, tiny_edusharing{{/str}}
                             </span>
                         </div>
                             <button id="eduRepoButton" class="eduRepoTargetChooserDisabled btn btn-primary d-none" type="button">
-                                {{#str}} browserepository, tiny_edusharing{{/str}}
+                                {{#str}} edu_tiny_browserepository, tiny_edusharing{{/str}}
                             </button>
                             <div id="eduRepoButtonChooser" class="eduRepoTargetChooserEnabled btn-group d-none" role="group" aria-label="Edu-Sharing Repository Target Chooser">
                                 <button type="button" class="btn btn-primary" data-target="search">{{#str}} repoSearch, edusharing{{/str}}</button>
@@ -90,52 +90,52 @@
                 <div class="row">
                     <div class="col-6">
                         <div id="objectVersioningContainer" class="pb-2">
-                            <h5> {{#str}} objectVersioning, tiny_edusharing{{/str}}</h5>
-                            <div class="eduNonVersionableHint d-none">{{#str}} nonVersionableHint, tiny_edusharing{{/str}}</div>
+                            <h5> {{#str}} edu_tiny_objectVersioning, tiny_edusharing{{/str}}</h5>
+                            <div class="eduNonVersionableHint d-none">{{#str}} edu_tiny_nonVersionableHint, tiny_edusharing{{/str}}</div>
                             <div class="form-check eduVersionRadio">
                                 <input class="form-check-input" type="radio" name="eduVersion" id="eduVersion1" value="0" checked>
                                 <label class="form-check-label" for="eduVersion1">
-                                    {{#str}} newestVersion, tiny_edusharing{{/str}}
+                                    {{#str}} edu_tiny_newestVersion, tiny_edusharing{{/str}}
                                 </label>
                             </div>
                             <div class="form-check eduVersionRadio">
                                 <input class="form-check-input" type="radio" name="eduVersion" id="eduVersion2" value="1">
                                 <label class="form-check-label" for="eduVersion2">
-                                    {{#str}} thisVersion, tiny_edusharing{{/str}}
+                                    {{#str}} edu_tiny_thisVersion, tiny_edusharing{{/str}}
                                 </label>
                             </div>
                         </div>
                         <div class="mb-3" id="eduCaptionContainer">
-                            <h5>{{#str}} caption, tiny_edusharing{{/str}}</h5>
+                            <h5>{{#str}} edu_tiny_caption, tiny_edusharing{{/str}}</h5>
                             <input type="text" class="form-control" id="captionInput">
                         </div>
                         <div class="mb-3">
-                            <h5>{{#str}} alignment, tiny_edusharing{{/str}}</h5>
+                            <h5>{{#str}} edu_tiny_alignment, tiny_edusharing{{/str}}</h5>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="eduAlignment" id="eduAlignment1" value="left">
                                 <label class="form-check-label" for="eduAlignment1">
-                                    {{#str}} floatLeft, tiny_edusharing{{/str}}
+                                    {{#str}} edu_tiny_floatLeft, tiny_edusharing{{/str}}
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="eduAlignment" id="eduAlignment2" value="right">
                                 <label class="form-check-label" for="eduAlignment2">
-                                    {{#str}} floatRight, tiny_edusharing{{/str}}
+                                    {{#str}} edu_tiny_floatRight, tiny_edusharing{{/str}}
                                 </label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="eduAlignment" id="eduAlignment3" value="none" checked>
                                 <label class="form-check-label" for="eduAlignment3">
-                                    {{#str}} alignmentNone, tiny_edusharing{{/str}}
+                                    {{#str}} edu_tiny_alignmentNone, tiny_edusharing{{/str}}
                                 </label>
                             </div>
                         </div>
                         <div class="mb-3" id="eduWidthContainer">
-                            <h5>{{#str}} dimensions, tiny_edusharing{{/str}}</h5>
+                            <h5>{{#str}} edu_tiny_dimensions, tiny_edusharing{{/str}}</h5>
                             <div class="form-group">
-                                <label for="eduWidth">{{#str}} width, tiny_edusharing{{/str}}</label>
+                                <label for="eduWidth">{{#str}} edu_tiny_width, tiny_edusharing{{/str}}</label>
                                 <input type="number" class="form-control" id="eduWidth" min="0" step="1"/>
-                                <label for="eduHeight">{{#str}} height, tiny_edusharing{{/str}}</label>
+                                <label for="eduHeight">{{#str}} edu_tiny_height, tiny_edusharing{{/str}}</label>
                                 <input type="number" class="form-control" id="eduHeight" min="0" step="1"/>
                             </div>
                         </div>
@@ -155,7 +155,7 @@
 
     {{$footer}}
         <button type="button" class="btn btn-secondary" data-action="cancel">{{#str}} cancel, moodle {{/str}}</button>
-        <button type="button" id="eduSubmitButton" class="btn btn-primary" data-action="save" data-secondary-title="{{#str}} edit, tiny_edusharing{{/str}}" disabled>{{#str}} insert, tiny_edusharing{{/str}}</button>
-        <button type="button" id="eduCaptionContinueButton" class="btn btn-primary d-none">{{#str}} continue, tiny_edusharing{{/str}}</button>
+        <button type="button" id="eduSubmitButton" class="btn btn-primary" data-action="save" data-secondary-title="{{#str}} edu_tiny_edit, tiny_edusharing{{/str}}" disabled>{{#str}} edu_tiny_insert, tiny_edusharing{{/str}}</button>
+        <button type="button" id="eduCaptionContinueButton" class="btn btn-primary d-none">{{#str}} edu_tiny_continue, tiny_edusharing{{/str}}</button>
     {{/footer}}
 {{/ core/modal }}

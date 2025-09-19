@@ -29,27 +29,44 @@ import {getCourseId} from "./options";
 import {addEduSharingInstance, deleteEduSharingInstance, updateInstance} from "./repository";
 import Config from 'core/config';
 
+const formEditorsMap = new WeakMap();
+
+// Per-editor initial elements.
+const initialElementsMap = new WeakMap();
+
 export const initEventHandler = (editor) => {
     const container = editor.getContainer();
     const form = container.closest("form");
     if (form !== null && typeof form.submit === "function") {
-        form.addEventListener('submit', async(event) => {
-            if (event.submitter.id === "id_submitbutton" || event.submitter.id === "id_submitbutton2") {
+        let editors = formEditorsMap.get(form);
+        if (!editors) {
+            editors = new Set();
+            formEditorsMap.set(form, editors);
+        }
+        editors.add(editor);
+
+        if (!form.dataset.esSubmitHook) {
+            form.dataset.esSubmitHook = "1";
+            form.addEventListener('submit', async(event) => {
+                const submitter = event.submitter;
+                if (!submitter || (submitter.id !== "id_submitbutton" && submitter.id !== "id_submitbutton2")) {
+                    return;
+                }
                 event.preventDefault();
-                await convertForSubmit(editor);
-                form.submit();
-            }
-        });
+
+                const formEditors = formEditorsMap.get(form) || new Set();
+                try {
+                    await Promise.all([...formEditors].map(editor => convertForSubmit(editor)));
+                } finally {
+                    form.submit();
+                }
+            });
+        }
     }
 };
 
-/**
- * The variable initialElements contains all existing es objects found when the editor is instantiated.
- * This is needed for bookkeeping.
- */
-let initialElements = [];
-
 const convertForSubmit = async(editor) => {
+    const initialElements = initialElementsMap.get(editor) || [];
     const iterateAsync = async domNode => {
         if (domNode.hasChildNodes()) {
             for (const node of domNode.childNodes) {
@@ -108,6 +125,7 @@ const convertForSubmit = async(editor) => {
             }
         });
     }
+    initialElementsMap.set(editor, []);
 };
 
 export const initExistingElements = editor => {
@@ -120,7 +138,9 @@ export const initExistingElements = editor => {
         if (domNode.classList !== undefined && domNode.classList.contains('edusharing_atto')) {
             let link = domNode.getAttribute(domNode.nodeName.toLowerCase() === 'img' ? 'src' : 'href');
             let uri = new URL(link);
-            initialElements.push(parseInt(uri.searchParams.get('resourceId')));
+            const arr = initialElementsMap.get(editor) || [];
+            arr.push(parseInt(uri.searchParams.get('resourceId')));
+            initialElementsMap.set(editor, arr);
         }
     };
     const container = window.document.createElement('div');

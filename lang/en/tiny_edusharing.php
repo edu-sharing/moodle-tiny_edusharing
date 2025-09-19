@@ -22,34 +22,35 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['alignment'] = 'Alignment';
-$string['alignmentNone'] = 'None';
-$string['attoCaptionPrompt'] = 'The selected element was inserted using the old editor (Atto).
+$string['edu_tiny_alignment'] = 'Alignment';
+$string['edu_tiny_alignmentNone'] = 'None';
+$string['edu_tiny_attoCaptionPrompt'] = 'The selected element was inserted using the old editor (Atto).
      After saving the changes, it will be converted to the new format and retain all functionalities and properties.
      Directly under the element a text element was found which possibly contains the caption.
     Please review the text below and decide whether you would like to use (and possibly edit) it as the caption:';
-$string['browserepository'] = 'Browse edu-sharing';
-$string['buttontitle'] = 'Insert edu-sharing content';
-$string['caption'] = 'Caption';
-$string['continue'] = 'Continue edit';
-$string['dimensions'] = 'Dimensions';
-$string['edit'] = 'Edit edu-sharing content';
-$string['editModalTitle'] = 'Edit edu-sharing content';
-$string['floatLeft'] = 'Float left';
-$string['floatRight'] = 'Float right';
-$string['height'] = 'Height';
-$string['helplinktext'] = 'Edusharing';
-$string['insert'] = 'Insert edu-sharing content';
-$string['instructions'] = 'You can insert edu-sharing content by opening the repository and applying an item.';
-$string['instructionsChooser'] = 'You can insert edu-sharing content by opening one of the repository pages and applying an item.';
-$string['modaltitle'] = 'Insert edu-sharing content';
-$string['newestVersion'] = 'Newest version';
-$string['noEditInfo'] = 'The current selection cannot be edited as it either contains no edu-sharing object or the selected edu-sharing object is not editable';
-$string['nonVersionableHint'] = 'This object cannot be versioned since it is either a published copy or a reference to a collection.';
-$string['objectVersioning'] = 'Object versioning';
-$string['openRepo'] = 'Open edu-sharing';
-$string['otherCaption'] = 'No, i would like another or no caption.';
+$string['edu_tiny_browserepository'] = 'Browse edu-sharing';
+$string['edu_tiny_buttontitle'] = 'Insert edu-sharing content';
+$string['edu_tiny_caption'] = 'Caption';
+$string['edu_tiny_continue'] = 'Continue edit';
+$string['edu_tiny_dimensions'] = 'Dimensions';
+$string['edu_tiny_edit'] = 'Edit edu-sharing content';
+$string['edu_tiny_editModalTitle'] = 'Edit edu-sharing content';
+$string['edu_tiny_floatLeft'] = 'Float left';
+$string['edu_tiny_floatRight'] = 'Float right';
+$string['edu_tiny_height'] = 'Height';
+$string['edu_tiny_helplinktext'] = 'Edusharing';
+$string['edu_tiny_insert'] = 'Insert edu-sharing content';
+$string['edu_tiny_instructions'] = 'You can insert edu-sharing content by opening the repository and applying an item.';
+$string['edu_tiny_instructionsChooser'] = 'You can insert edu-sharing content by opening one of the repository pages and applying an item.';
+$string['edu_tiny_modaltitle'] = 'Insert edu-sharing content';
+$string['edu_tiny_newestVersion'] = 'Newest version';
+$string['edu_tiny_noEditInfo'] = 'The current selection cannot be edited as it either contains no edu-sharing object or the selected edu-sharing object is not editable';
+$string['edu_tiny_nonVersionableHint'] = 'This object cannot be versioned since it is either a published copy or a reference to a collection.';
+$string['edu_tiny_objectVersioning'] = 'Object versioning';
+$string['edu_tiny_openRepo'] = 'Open edu-sharing';
+$string['edu_tiny_otherCaption'] = 'No, i would like another or no caption.';
+$string['edu_tiny_thisCaption'] = 'Yes, this is the caption.';
+$string['edu_tiny_thisVersion'] = 'This version';
+$string['edu_tiny_width'] = 'Width';
 $string['pluginname'] = 'edu-sharing TinyMCE-Editor';
-$string['thisCaption'] = 'Yes, this is the caption.';
-$string['thisVersion'] = 'This version';
-$string['width'] = 'Width';
+
