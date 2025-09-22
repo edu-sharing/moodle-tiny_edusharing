@@ -48,6 +48,10 @@ export const initEventHandler = (editor) => {
         if (!form.dataset.esSubmitHook) {
             form.dataset.esSubmitHook = "1";
             form.addEventListener('submit', async(event) => {
+                if (form.dataset.esBypassSubmit === "1") {
+                    delete form.dataset.esBypassSubmit;
+                    return;
+                }
                 const submitter = event.submitter;
                 if (!submitter || (submitter.id !== "id_submitbutton" && submitter.id !== "id_submitbutton2")) {
                     return;
@@ -58,6 +62,14 @@ export const initEventHandler = (editor) => {
                 try {
                     await Promise.all([...formEditors].map(editor => convertForSubmit(editor)));
                 } finally {
+                    form.dataset.esBypassSubmit = "1";
+                    if (submitter.id === "id_submitbutton") {
+                        const hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = 'submitbutton';
+                        hidden.value = '1';
+                        form.appendChild(hidden);
+                    }
                     form.submit();
                 }
             });

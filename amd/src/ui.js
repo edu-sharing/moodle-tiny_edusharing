@@ -395,6 +395,7 @@ const displayDialogue = async(editor) => {
             handleInsertSubmission(editor);
         });
     }
+    initInstructionGif();
 };
 
 const hideSizeOptions = mediaType => {
