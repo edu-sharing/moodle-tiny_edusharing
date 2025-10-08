@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Race condition appeared when several editor instances are in the DOM
 - Redirect to the edited section now works after submit
+- Translation strings are now properly loaded
+- The instructions GIF is now initialized after the DOM is completely loaded 
 
 ## [10.1.1] - 2025-07-23
 
