@@ -54,4 +54,3 @@ $string['edu_tiny_thisVersion'] = 'This version';
 $string['edu_tiny_width'] = 'Width';
 $string['edusharing:use'] = 'Use edu-sharing tinyMCE plugin';
 $string['pluginname'] = 'edu-sharing TinyMCE-Editor';
-
