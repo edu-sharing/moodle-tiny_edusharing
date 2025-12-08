@@ -34,7 +34,7 @@ class plugininfo extends plugin implements
     plugin_with_buttons,
     plugin_with_configuration,
     plugin_with_menuitems
-     {
+{
     /**
      * Function get_available_buttons
      *
