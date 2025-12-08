@@ -22,7 +22,6 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['edusharing:use'] = 'Use edu-sharing tinyMCE plugin';
 $string['edu_tiny_alignment'] = 'Alignment';
 $string['edu_tiny_alignmentNone'] = 'None';
 $string['edu_tiny_attoCaptionPrompt'] = 'The selected element was inserted using the old editor (Atto).
@@ -53,5 +52,6 @@ $string['edu_tiny_otherCaption'] = 'No, i would like another or no caption.';
 $string['edu_tiny_thisCaption'] = 'Yes, this is the caption.';
 $string['edu_tiny_thisVersion'] = 'This version';
 $string['edu_tiny_width'] = 'Width';
+$string['edusharing:use'] = 'Use edu-sharing tinyMCE plugin';
 $string['pluginname'] = 'edu-sharing TinyMCE-Editor';
 

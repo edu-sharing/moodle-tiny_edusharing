@@ -22,7 +22,6 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['edusharing:use'] = 'Edu-sharing TinyMCE-Plugin verwenden';
 $string['edu_tiny_alignment'] = 'Ausrichtung';
 $string['edu_tiny_alignmentNone'] = 'Keine';
 $string['edu_tiny_attoCaptionPrompt'] = 'Das zum Bearbeiten ausgewählte Element wurde mit dem zuvor genutzten Editor (Atto) eingefügt.
@@ -53,4 +52,5 @@ $string['edu_tiny_otherCaption'] = 'Nein, ich möchte eine andere oder keine Bil
 $string['edu_tiny_thisCaption'] = 'Ja, das ist die Bildunterschrift.';
 $string['edu_tiny_thisVersion'] = 'Diese Version';
 $string['edu_tiny_width'] = 'Breite';
+$string['edusharing:use'] = 'Edu-sharing TinyMCE-Plugin verwenden';
 $string['pluginname'] = 'edu-sharing TinyMCE-Editor';
