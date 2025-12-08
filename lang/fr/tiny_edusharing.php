@@ -21,7 +21,7 @@
  * @copyright   2024 metaVentis GmbH <http://metaventis.com>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
+$string['edusharing:use'] = 'Utiliser le plugin edu-sharing TinyMCE';
 $string['edu_tiny_alignment'] = 'Alignement';
 $string['edu_tiny_alignmentNone'] = 'pas d\'alignement';
 $string['edu_tiny_attoCaptionPrompt'] = 'L\'élément sélectionné pour être édité a été inséré avec l\'éditeur (Atto) utilisé précédemment.
