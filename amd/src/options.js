@@ -28,6 +28,7 @@ const repoUrl = getPluginOptionName(pluginName, 'repoUrl');
 const repoTarget = getPluginOptionName(pluginName, 'repoTarget');
 const courseId = getPluginOptionName(pluginName, 'courseId');
 const enableRepoTargetChooser = getPluginOptionName(pluginName, 'enableRepoTargetChooser');
+const repoId = getPluginOptionName(pluginName, 'repoId');
 
 /**
  * Register the options for the Tiny edu-sharing plugin.
@@ -36,21 +37,20 @@ const enableRepoTargetChooser = getPluginOptionName(pluginName, 'enableRepoTarge
  */
 export const register = (editor) => {
     const registerOption = editor.options.register;
-
     registerOption(repoUrl, {
         processor: 'string', "default": '',
     });
-
     registerOption(repoTarget, {
         processor: 'string', "default": '',
     });
-
     registerOption(courseId, {
         processor: 'string', "default": '',
     });
-
     registerOption(enableRepoTargetChooser, {
         processor: 'boolean', "default": false,
+    });
+    registerOption(repoId, {
+        processor: 'string', "default": '',
     });
 };
 
@@ -85,3 +85,11 @@ export const getCourseId = (editor) => editor.options.get(courseId);
  * @returns {object}
  */
 export const getEnableRepoTargetChooser = (editor) => editor.options.get(enableRepoTargetChooser);
+
+/**
+ * Get the repoId configuration for the Tiny edu-sharing plugin.
+ *
+ * @param {TinyMCE} editor
+ * @returns {object}
+ */
+export const getRepoId = (editor) => editor.options.get(repoId);
