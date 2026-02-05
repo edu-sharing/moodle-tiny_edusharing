@@ -177,7 +177,13 @@ const convertForSubmit = async(editor) => {
                     showIframeRemovalDialog = true;
                 }
             }
-            if (iframes.length > 0) {
+            const widgets = tempDiv.querySelectorAll('edu-sharing-generic-widget');
+            for (const widget of widgets) {
+                const payload = toWidgetPayload(widget);
+                const replacement = await renderForPromise(`${component}/widget`, {widgetData: payload});
+                widget.outerHTML = replacement.html;
+            }
+            if (iframes.length > 0 || widgets.length > 0) {
                 domNode.replaceWith(...tempDiv.childNodes);
             }
         };
@@ -201,6 +207,23 @@ const convertForSubmit = async(editor) => {
                 showIframeRemovalDialog = true;
             }
         };
+        /**
+         * Asynchronously processes a widget contained within a DOM node.
+         *
+         * This function performs operations related to the provided DOM node,
+         * enabling interaction or manipulation of the widget represented.
+         *
+         * @async
+         * @param {HTMLElement} domNode - The DOM node containing the widget to process.
+         * @returns {Promise<void>} A promise that resolves when the processing is complete.
+         */
+        const processWidget = async(domNode) => {
+            const payload = toWidgetPayload(domNode);
+            const renderedTemplate = await renderForPromise(`${component}/widget`, {
+                widgetData: payload
+            });
+            domNode.outerHTML = renderedTemplate.html;
+        };
         if (domNode.hasChildNodes()) {
             for (const node of domNode.childNodes) {
                 await iterateAsync(node);
@@ -209,7 +232,8 @@ const convertForSubmit = async(editor) => {
         if (domNode.classList !== undefined && domNode.classList.contains('edusharing_atto')) {
             await processAddedOrEditedElement(domNode);
         }
-        if (domNode.nodeType === Node.TEXT_NODE && domNode.textContent.includes('<iframe')) {
+        if (domNode.nodeType === Node.TEXT_NODE &&
+            (domNode.textContent.includes('<iframe') || domNode.textContent.includes('generic-widget'))) {
             await processTextNode(domNode);
         }
         if (domNode instanceof HTMLIFrameElement
@@ -218,6 +242,9 @@ const convertForSubmit = async(editor) => {
             if (domNode.getAttribute('data-repo-id') === getRepoId(editor)) {
                 await processIframe(domNode);
             }
+        }
+        if (domNode instanceof Element && domNode.tagName.toLowerCase() === 'edu-sharing-generic-widget') {
+            await processWidget(domNode);
         }
     };
 
@@ -336,4 +363,28 @@ export const initExistingElements = editor => {
     const container = window.document.createElement('div');
     container.innerHTML = editor.getContent();
     iterate(container);
+};
+
+/**
+ * Extract a widget payload from a DOM node:
+ * - tag: the element tag name (lowercased)
+ * - attrs: all attributes as key/value pairs
+ * Children/content are intentionally ignored.
+ *
+ * @param {Element} domNode
+ * @returns {string}
+ */
+export const toWidgetPayload = (domNode) => {
+    if (!domNode || domNode.nodeType !== Node.ELEMENT_NODE) {
+        throw new TypeError('toWidgetPayload: domNode must be an Element');
+    }
+
+    const tag = domNode.tagName.toLowerCase();
+    /** @type {Record<string, string|boolean>} */
+    const attrs = {};
+
+    for (const attr of Array.from(domNode.attributes)) {
+        attrs[attr.name] = attr.value === '' ? true : attr.value;
+    }
+    return JSON.stringify({tag, attrs});
 };

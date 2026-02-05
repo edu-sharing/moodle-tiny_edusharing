@@ -39,6 +39,9 @@ export const setup = async(editor) => {
         editor.getBody().querySelectorAll('.edusharing-placeholder:not([contenteditable])').forEach((node) => {
             node.contentEditable = false;
         });
+        editor.getBody().querySelectorAll('.edusharing-widget-placeholder:not([contenteditable])').forEach((node) => {
+            node.contentEditable = false;
+        });
         // Old atto preview links need to be redirected in case the atto plugin is not installed.
         editor.getBody().querySelectorAll('img.edusharing_atto').forEach(node => {
             node.src = node.src.replace('/lib/editor/atto/plugins/edusharing/', '/mod/edusharing/');
