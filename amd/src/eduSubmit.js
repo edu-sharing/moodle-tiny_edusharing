@@ -84,6 +84,7 @@ export const initEventHandler = (editor) => {
 const convertForSubmit = async(editor) => {
     const initialElements = initialElementsMap.get(editor) || [];
     let showIframeRemovalDialog = false;
+    let removedWidgets = [];
     /**
      * Recursively processes a DOM node and its children to handle specific cases related to
      * ES embedding in various elements such as images, links, iframes, and text nodes. This function
@@ -179,9 +180,14 @@ const convertForSubmit = async(editor) => {
             }
             const widgets = tempDiv.querySelectorAll('edu-sharing-generic-widget');
             for (const widget of widgets) {
-                const payload = toWidgetPayload(widget);
-                const replacement = await renderForPromise(`${component}/widget`, {widgetData: payload});
-                widget.outerHTML = replacement.html;
+                try {
+                    const payload = toWidgetPayload(widget);
+                    const replacement = await renderForPromise(`${component}/widget`, {widgetData: payload});
+                    widget.outerHTML = replacement.html;
+                } catch (e) {
+                    widget.remove();
+                    removedWidgets.push(e.message.split(':').pop());
+                }
             }
             if (iframes.length > 0 || widgets.length > 0) {
                 domNode.replaceWith(...tempDiv.childNodes);
@@ -218,11 +224,16 @@ const convertForSubmit = async(editor) => {
          * @returns {Promise<void>} A promise that resolves when the processing is complete.
          */
         const processWidget = async(domNode) => {
-            const payload = toWidgetPayload(domNode);
-            const renderedTemplate = await renderForPromise(`${component}/widget`, {
-                widgetData: payload
-            });
-            domNode.outerHTML = renderedTemplate.html;
+            try {
+                const payload = toWidgetPayload(domNode);
+                const renderedTemplate = await renderForPromise(`${component}/widget`, {
+                    widgetData: payload
+                });
+                domNode.outerHTML = renderedTemplate.html;
+            } catch (e) {
+                domNode.remove();
+                removedWidgets.push(e.message.split(':').pop());
+            }
         };
         if (domNode.hasChildNodes()) {
             for (const node of domNode.childNodes) {
@@ -260,16 +271,29 @@ const convertForSubmit = async(editor) => {
             }
         });
     }
-    if (showIframeRemovalDialog) {
-        const translatedMessage = await new Promise((resolve) => {
-            getString('iframeRemovalInfo', 'tiny_edusharing').done(resolve);
-        });
+    if (showIframeRemovalDialog || removedWidgets.length > 0) {
         const translatedTitle = await new Promise((resolve) => {
-            getString('iframeRemovalTitle', 'tiny_edusharing').done(resolve);
+            getString('removalTitle', 'tiny_edusharing').done(resolve);
         });
+        let translatedIframeMessage = "";
+        if (showIframeRemovalDialog) {
+            translatedIframeMessage = await new Promise((resolve) => {
+                getString('iframeRemovalInfo', 'tiny_edusharing').done(resolve);
+            });
+            translatedIframeMessage = '<p>' + translatedIframeMessage + '</p>';
+        }
+        let translatedModalMessage = "";
+        if (removedWidgets.length > 0) {
+            translatedModalMessage = await new Promise((resolve) => {
+                getString('widgetRemovalInfo', 'tiny_edusharing').done(resolve);
+            });
+            translatedModalMessage = '<p>' + translatedModalMessage.replace('##placeholder##', removedWidgets.join(', ')) + '</p>';
+        }
+        const body = (showIframeRemovalDialog ? translatedIframeMessage : '')
+            + (removedWidgets.length > 0 ? translatedModalMessage : '');
         const modal = await Modal.create({
             title: translatedTitle,
-            body: '<p>' + translatedMessage + '</p>',
+            body: body,
             footer: '<button type="button" class="btn btn-primary" data-action="confirm">OK</button>',
             show: true,
             removeOnClose: true
@@ -385,6 +409,9 @@ export const toWidgetPayload = (domNode) => {
 
     for (const attr of Array.from(domNode.attributes)) {
         attrs[attr.name] = attr.value === '' ? true : attr.value;
+    }
+    if (attrs['widget-type'] !== 'wlo-content-teaser') {
+        throw new Error(`unsupported:${attrs['widget-type']}`);
     }
     return JSON.stringify({tag, attrs});
 };
