@@ -16,7 +16,10 @@
 
 namespace tiny_edusharing;
 
+use coding_exception;
 use context;
+use context_system;
+use dml_exception;
 use editor_tiny\editor;
 use editor_tiny\plugin;
 use editor_tiny\plugin_with_buttons;
@@ -65,7 +68,8 @@ class plugininfo extends plugin implements
      * @param array $fpoptions
      * @param editor|null $editor
      * @return array
-     * @throws \dml_exception
+     * @throws dml_exception
+     * @throws coding_exception
      */
     public static function get_plugin_configuration_for_context(
         context $context,
@@ -73,6 +77,10 @@ class plugininfo extends plugin implements
         array $fpoptions,
         ?\editor_tiny\editor $editor = null
     ): array {
+
+        if (!has_capability('tiny/edusharing:use', context_system::instance())) {
+            return [];
+        }
 
         global $COURSE;
 

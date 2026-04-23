@@ -22,7 +22,7 @@
  *
  * This script contains all logic to be executed when the user saves the changes they made in the editor
  * by clicking the "save changes" button.
- * It also contains the logic for keeping score of es elements already present in the section opened.
+ * It also contains the logic for keeping the score of es elements already present in the section opened.
  */
 
 import {getCourseId, getRepoId} from "./options";
@@ -37,6 +37,16 @@ const formEditorsMap = new WeakMap();
 
 // Per-editor initial elements.
 const initialElementsMap = new WeakMap();
+
+// Allowed widget attributes
+const widgetAttributeWhitelist = [
+    'context-node-id',
+    'widget-type',
+    'node-id',
+    'propagated-node-id',
+    'config-overwrite',
+    'search-text'
+];
 
 export const initEventHandler = (editor) => {
     const container = editor.getContainer();
@@ -162,7 +172,7 @@ const convertForSubmit = async(editor) => {
          */
         const processTextNode = async(domNode) => {
             const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = domNode.textContent;
+            tempDiv.textContent = domNode.textContent;
             const iframes = tempDiv.querySelectorAll('iframe.es-embed-iframe');
             for (const iframe of iframes) {
                 if (iframe.getAttribute('data-repo-id') === getRepoId(editor)) {
@@ -408,7 +418,9 @@ export const toWidgetPayload = (domNode) => {
     const attrs = {};
 
     for (const attr of Array.from(domNode.attributes)) {
-        attrs[attr.name] = attr.value === '' ? true : attr.value;
+        if (!widgetAttributeWhitelist.includes(attr.name)) {
+            attrs[attr.name] = attr.value === '' ? true : attr.value;
+        }
     }
     if (attrs['widget-type'] !== 'wlo-content-teaser') {
         throw new Error(`unsupported:${attrs['widget-type']}`);

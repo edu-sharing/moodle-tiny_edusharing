@@ -30,7 +30,7 @@
 
 import {component} from './common';
 import {getCourseId, getRepoTarget, getRepoUrl, getEnableRepoTargetChooser} from './options';
-
+import {validateOrigin} from 'mod_edusharing/utils';
 import {renderForPromise} from 'core/templates';
 import Modal from 'tiny_edusharing/modal';
 import ModalEvents from 'core/modal_events';
@@ -118,7 +118,7 @@ const handleInsertSubmission = async(editor) => {
     const content = await renderForPromise(`${component}/content`, {
         edusharingImg: img,
         edusharingRef: ref,
-        edusharingPreviewSrc: url.toString(),
+        edusharingPreviewSrc: sanitizePreviewUrl(url.toString()),
         edusharingTitle: title.toString(),
         edusharingInsertCaption: caption.toString() !== "",
         edusharingCaption: caption.toString(),
@@ -131,6 +131,25 @@ const handleInsertSubmission = async(editor) => {
     editor.selection.moveToBookmark(openingSelection);
     editor.execCommand('mceInsertContent', false, content.html);
     editor.selection.moveToBookmark(openingSelection);
+};
+
+/**
+ * Returns a safe URL for use in href/src attributes.
+ * Only http(s) URLs are allowed; everything else falls back to '#'.
+ *
+ * @param {string} rawUrl
+ * @returns {string}
+ */
+const sanitizePreviewUrl = (rawUrl) => {
+    try {
+        const parsed = new URL(rawUrl, window.location.origin);
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+            return parsed.toString();
+        }
+    } catch (e) {
+        // Ignore invalid URLs.
+    }
+    return '#';
 };
 
 const displayDialogue = async(editor) => {
@@ -151,12 +170,12 @@ const displayDialogue = async(editor) => {
                     if (existingCaption === null && newCaption !== "") {
                         const newCaptionParagraph = document.createElement('p');
                         newCaptionParagraph.classList.add('edusharing_caption');
-                        newCaptionParagraph.innerHTML = newCaption;
+                        newCaptionParagraph.textContent = newCaption;
                         currentEdusharing.appendChild(newCaptionParagraph);
                     } else if (existingCaption !== null && newCaption !== "") {
                         existingCaptionParagraph.remove();
                     } else if (existingCaption !== null) {
-                        existingCaption.innerHTML = newCaption;
+                        existingCaption.textContent = newCaption;
                     }
                     if (hasAlignmentChanged) {
                         if (inputAlignment === 'none') {
@@ -186,7 +205,7 @@ const displayDialogue = async(editor) => {
                     renderForPromise(`${component}/content`, {
                         edusharingImg: true,
                         edusharingRef: false,
-                        edusharingPreviewSrc: url.toString(),
+                        edusharingPreviewSrc: sanitizePreviewUrl(url.toString()),
                         edusharingTitle: url.searchParams.get('title'),
                         edusharingInsertCaption: window.document.getElementById('captionInput').value !== "",
                         edusharingCaption: window.document.getElementById('captionInput').value,
@@ -220,7 +239,7 @@ const displayDialogue = async(editor) => {
         if (isOldAttoElement) {
             const nextSibling = currentEdusharing.nextSibling;
             if (nextSibling !== null && nextSibling.nodeName === 'P' && nextSibling.innerText.trim() !== "") {
-                window.document.getElementById('eduCaptionText').innerHTML = nextSibling.innerText;
+                window.document.getElementById('eduCaptionText').textContent = nextSibling.innerText;
                 window.document.getElementById('eduAttoCaptionPrompt').classList.remove('d-none');
                 window.document.getElementById('eduCaptionContinueButton').classList.remove('d-none');
                 window.document.getElementById('eduSubmitButton').classList.add('d-none');
@@ -252,7 +271,7 @@ const displayDialogue = async(editor) => {
         submitButton.innerHTML = submitButton.getAttribute('data-secondary-title');
         let isSizeEditable = true;
         const modalTitle = root.querySelector('.modal-title');
-        modalTitle.innerHTML = modalTitle.querySelector('input').value;
+        modalTitle.textContent = modalTitle.querySelector('input').value;
         window.document.getElementById('repoButtonContainer').classList.add('d-none');
         const eduImage = currentEdusharing.querySelector("img.edusharing_atto");
         if (eduImage === null || eduImage === undefined) {
@@ -276,7 +295,7 @@ const displayDialogue = async(editor) => {
             isSizeEditable = false;
         }
         window.document.getElementById("objectVersioningContainer").classList.add('d-none');
-        window.document.getElementById('eduContentTitle').innerHTML = url.searchParams.get('title');
+        window.document.getElementById('eduContentTitle').textContent = url.searchParams.get('title');
         let alignment = currentEdusharing.style.float === "" ? 'none' : currentEdusharing.style.float;
         if (alignment === "none" && isOldAttoElement) {
             alignment = currentEdusharing.style.textAlign === "" ? 'none' : currentEdusharing.style.textAlign;
@@ -313,7 +332,8 @@ const displayDialogue = async(editor) => {
             });
         }
         const applyNodeListener = event => {
-            if (event.data.event === "APPLY_NODE") {
+            if (event.data.event === "APPLY_NODE" && validateOrigin(event.origin, repoUrl)) {
+                window.console.log(event);
                 const prepareModal = () => {
                     if (hideSizeOptions(node.mediatype)) {
                         window.document.getElementById('edusharingNoWidth').value = "true";
@@ -335,7 +355,7 @@ const displayDialogue = async(editor) => {
                 checkVersioning(node);
                 window.document.getElementById('repoButtonContainer').classList.add('d-none');
                 window.document.getElementById('nodeOptionsForm').classList.remove('d-none');
-                window.document.getElementById('eduContentTitle').innerHTML = node.name ?? node.title;
+                window.document.getElementById('eduContentTitle').textContent = node.name ?? node.title;
                 const courseId = getCourseId(editor);
                 const ajaxParams = {
                     eduTicketStructure: {
