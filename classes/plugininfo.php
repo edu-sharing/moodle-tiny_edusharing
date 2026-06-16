@@ -78,10 +78,6 @@ class plugininfo extends plugin implements
         ?\editor_tiny\editor $editor = null
     ): array {
 
-        if (!has_capability('tiny/edusharing:use', context_system::instance())) {
-            return [];
-        }
-
         global $COURSE;
 
         return [

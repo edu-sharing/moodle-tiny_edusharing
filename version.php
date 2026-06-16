@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component    = 'tiny_edusharing';
-$plugin->release      = '10.2.2_BETA';
-$plugin->version      = 2026042300;
+$plugin->release      = '10.2.3_BETA';
+$plugin->version      = 2026052200;
 $plugin->requires     = 2022112809;
 $plugin->dependencies = ['mod_edusharing' => 2026042300];
 $plugin->maturity     = MATURITY_BETA;
