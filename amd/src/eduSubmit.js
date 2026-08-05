@@ -72,10 +72,24 @@ export const initEventHandler = (editor) => {
                 }
                 event.preventDefault();
 
+                // Disable the submit buttons while our custom conversion logic runs, so a second
+                // click cannot re-enter this handler and create duplicate edusharing usages.
+                const submitButtons = [
+                    form.querySelector('#id_submitbutton'),
+                    form.querySelector('#id_submitbutton2'),
+                ].filter(Boolean);
+                const previouslyDisabled = new Map(submitButtons.map(btn => [btn, btn.disabled]));
+                submitButtons.forEach(btn => {
+                    btn.disabled = true;
+                });
+
                 const formEditors = formEditorsMap.get(form) || new Set();
                 try {
                     await Promise.all([...formEditors].map(editor => convertForSubmit(editor)));
                 } finally {
+                    submitButtons.forEach(btn => {
+                        btn.disabled = previouslyDisabled.get(btn) ?? false;
+                    });
                     form.dataset.esBypassSubmit = "1";
                     if (submitter.id === "id_submitbutton") {
                         const hidden = document.createElement('input');
