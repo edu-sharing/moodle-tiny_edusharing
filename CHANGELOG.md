@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.0.2] - 2026-08-28
+
+### Fixed
+
+- Objects whose usage cannot be created in the repository are now removed from the text and
+  reported to the user with the reason, instead of being saved as a broken placeholder.
+- A save is no longer completed after an unexpected failure during conversion: usages created
+  during that attempt are removed again and the editor content is left untouched, so a retry
+  cannot create duplicates.
+- Failed updates of existing objects are reported instead of only being logged to the console.
+- Removing an element while walking the content no longer skips its next sibling.
+
 ## [11.0.1] - 2026-06-26
 
 ### Fixed

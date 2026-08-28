@@ -84,31 +84,141 @@ export const initEventHandler = (editor) => {
                 });
 
                 const formEditors = formEditorsMap.get(form) || new Set();
-                try {
-                    await Promise.all([...formEditors].map(editor => convertForSubmit(editor)));
-                } finally {
+                // Ids of usages created during this submit attempt, so an unexpected failure
+                // can roll them back instead of orphaning them in the repository.
+                const submitContext = {createdInstances: []};
+                const releaseButtons = () => {
                     submitButtons.forEach(btn => {
                         btn.disabled = previouslyDisabled.get(btn) ?? false;
                     });
-                    form.dataset.esBypassSubmit = "1";
-                    if (submitter.id === "id_submitbutton") {
-                        const hidden = document.createElement('input');
-                        hidden.type = 'hidden';
-                        hidden.name = 'submitbutton';
-                        hidden.value = '1';
-                        form.appendChild(hidden);
-                    }
-                    form.submit();
+                };
+                try {
+                    await Promise.all([...formEditors].map(editor => convertForSubmit(editor, submitContext)));
+                } catch (error) {
+                    // Per-object failures are handled inside convertForSubmit, so getting here means
+                    // something unexpected broke mid-conversion. Submitting now would persist
+                    // half-converted markup and leave the already created usages orphaned.
+                    window.console.error(error);
+                    await rollbackCreatedUsages(submitContext.createdInstances);
+                    await showFailureModal(
+                        await getString('unexpectedSubmitErrorTitle', component),
+                        '<p>' + await getString('unexpectedSubmitErrorInfo', component) + '</p>'
+                    );
+                    releaseButtons();
+                    return;
                 }
+                releaseButtons();
+                form.dataset.esBypassSubmit = "1";
+                if (submitter.id === "id_submitbutton") {
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'submitbutton';
+                    hidden.value = '1';
+                    form.appendChild(hidden);
+                }
+                form.submit();
             });
         }
     }
 };
 
-const convertForSubmit = async(editor) => {
+/**
+ * Deletes the usages created during a submit attempt that is being aborted, so that a
+ * failed save does not leave orphaned usages behind in the repository.
+ *
+ * @param {Array<{id: number, courseId: number}>} createdInstances
+ * @returns {Promise<void>}
+ */
+const rollbackCreatedUsages = async(createdInstances) => {
+    for (const instance of createdInstances) {
+        try {
+            await deleteEduSharingInstance({
+                eduDeleteStructure: {
+                    id: instance.id,
+                    courseId: instance.courseId
+                }
+            });
+        } catch (error) {
+            window.console.error(error);
+        }
+    }
+};
+
+/**
+ * Resolves a webservice rejection into a message that can be shown to the user.
+ *
+ * Moodle's core/ajax rejects with an object carrying the localised `message` of the
+ * moodle_exception thrown server side, which is exactly the reason we want to display.
+ *
+ * @param {object|null} error
+ * @returns {Promise<string>}
+ */
+const describeFailure = async(error) => error?.message || await getString('usageFailureUnknownReason', component);
+
+/**
+ * Removes an edu-sharing element from the content.
+ *
+ * New style elements are wrapped in a div.edusharing-placeholder that also holds the
+ * caption, so the whole wrapper has to go. Legacy atto elements have no wrapper - their
+ * surrounding paragraph may hold unrelated text and must never be removed.
+ *
+ * @param {HTMLElement} domNode
+ * @returns {void}
+ */
+const dropElement = (domNode) => {
+    const wrapper = domNode.closest?.('.edusharing-placeholder');
+    (wrapper ?? domNode).remove();
+};
+
+/**
+ * Renders a list of failures as an HTML list, each entry naming the object and its reason.
+ *
+ * @param {string} leadIn - Already translated introductory sentence.
+ * @param {Array<{title: string, reason: string}>} failures
+ * @returns {string}
+ */
+const renderFailureList = (leadIn, failures) => {
+    const escape = value => {
+        const holder = document.createElement('div');
+        holder.textContent = value ?? '';
+        return holder.innerHTML;
+    };
+    const items = failures
+        .map(failure => '<li><strong>' + escape(failure.title) + '</strong>: ' + escape(failure.reason) + '</li>')
+        .join('');
+    return '<p>' + leadIn + '</p><ul>' + items + '</ul>';
+};
+
+/**
+ * Shows a modal with a single confirm button and resolves once the user dismisses it.
+ *
+ * @param {string} title - Already translated title.
+ * @param {string} body - HTML body.
+ * @returns {Promise<void>}
+ */
+const showFailureModal = async(title, body) => {
+    const modal = await Modal.create({
+        title: title,
+        body: body,
+        footer: '<button type="button" class="btn btn-primary" data-action="confirm">OK</button>',
+        show: true,
+        removeOnClose: true
+    });
+    await new Promise((resolve) => {
+        modal.getRoot().on('click', '[data-action="confirm"]', resolve);
+        modal.getRoot().on('hidden.bs.modal', resolve);
+    });
+};
+
+const convertForSubmit = async(editor, submitContext = {createdInstances: []}) => {
     const initialElements = initialElementsMap.get(editor) || [];
+    const courseId = parseInt(getCourseId(editor));
     let showIframeRemovalDialog = false;
     let removedWidgets = [];
+    // Objects whose usage could not be created; they get dropped from the content.
+    let failedInsertions = [];
+    // Objects whose update could not be saved; they stay in the content unchanged.
+    let failedUpdates = [];
     /**
      * Recursively processes a DOM node and its children to handle specific cases related to
      * ES embedding in various elements such as images, links, iframes, and text nodes. This function
@@ -134,8 +244,23 @@ const convertForSubmit = async(editor) => {
          */
         const processAddedOrEditedElement = async(domNode) => {
             let link = domNode.getAttribute(domNode.nodeName.toLowerCase() === 'img' ? 'src' : 'href');
-            let uri = new URL(link);
+            let uri;
+            try {
+                uri = new URL(link);
+            } catch (error) {
+                // A placeholder we cannot parse carries no object to register, so drop it and
+                // report it rather than blocking the whole save.
+                window.console.error(error);
+                failedInsertions.push({
+                    title: domNode.getAttribute('title') ?? '',
+                    reason: await describeFailure(null)
+                });
+                dropElement(domNode);
+                return;
+            }
             let searchParams = uri.searchParams;
+            // Used to name the object in the failure report, so fall back to the title attribute.
+            const objectTitle = searchParams.get('title') || domNode.getAttribute('title') || '';
             let indexOfElement = initialElements.indexOf(parseInt(searchParams.get('resourceId')));
             if (indexOfElement >= 0) {
                 initialElements.splice(indexOfElement, 1);
@@ -143,32 +268,60 @@ const convertForSubmit = async(editor) => {
                     let ajaxParams = {
                         eduStructure: {
                             id: parseInt(searchParams.get('resourceId')),
-                            courseId: parseInt(getCourseId(editor)),
+                            courseId: courseId,
                             objectUrl: searchParams.get('object_url')
                         }
                     };
-                    let response = await updateInstance(ajaxParams);
-                    if (response.id === undefined) {
-                        window.console.log('Error updating instance');
+                    try {
+                        const response = await updateInstance(ajaxParams);
+                        if (response.id === undefined) {
+                            throw new Error('');
+                        }
+                        domNode.removeAttribute('data-edited');
+                    } catch (error) {
+                        // The object itself is already saved, so it is kept as it is. The
+                        // data-edited flag stays in place so the change can be retried.
+                        window.console.error(error);
+                        failedUpdates.push({
+                            title: objectTitle,
+                            reason: await describeFailure(error)
+                        });
                     }
-                    domNode.removeAttribute('data-edited');
                 }
             } else {
                 let ajaxParams = {
                     eduStructure: {
                         name: searchParams.get('title'),
                         objectUrl: searchParams.get('object_url'),
-                        courseId: parseInt(getCourseId(editor)),
+                        courseId: courseId,
                         objectVersion: searchParams.get('window_version')
                     }
                 };
-                let response = await addEduSharingInstance(ajaxParams);
-                if (response.id !== undefined) {
-                    let isImage = domNode.nodeName.toLowerCase() === 'img';
-                    let previewUrl = `${Config.wwwroot}/mod/edusharing/preview.php`
-                        + '?resourceId=' + response.id + '&' + searchParams.toString();
-                    domNode.setAttribute(isImage ? 'src' : 'href', previewUrl);
+                let response;
+                try {
+                    response = await addEduSharingInstance(ajaxParams);
+                } catch (error) {
+                    window.console.error(error);
+                    failedInsertions.push({
+                        title: objectTitle,
+                        reason: await describeFailure(error)
+                    });
+                    dropElement(domNode);
+                    return;
                 }
+                if (response.id === undefined) {
+                    failedInsertions.push({
+                        title: objectTitle,
+                        reason: await describeFailure(null)
+                    });
+                    dropElement(domNode);
+                    return;
+                }
+                submitContext.createdInstances.push({id: response.id, courseId: courseId});
+                let isImage = domNode.nodeName.toLowerCase() === 'img';
+                let previewUrl = `${Config.wwwroot}/mod/edusharing/preview.php`
+                    + '?resourceId=' + response.id + '&' + searchParams.toString();
+                domNode.setAttribute(isImage ? 'src' : 'href', previewUrl);
             }
         };
         /**
@@ -190,12 +343,17 @@ const convertForSubmit = async(editor) => {
             const iframes = tempDiv.querySelectorAll('iframe.es-embed-iframe');
             for (const iframe of iframes) {
                 if (iframe.getAttribute('data-repo-id') === getRepoId(editor)) {
-                    const replacement = await getIframeReplacementContent(editor, iframe);
+                    const failureCount = failedInsertions.length;
+                    const replacement = await getIframeReplacementContent(
+                        editor, iframe, failedInsertions, submitContext.createdInstances);
                     if (replacement !== '') {
                         iframe.outerHTML = replacement;
                     } else {
                         iframe.remove();
-                        showIframeRemovalDialog = true;
+                        // Only fall back to the generic notice when no concrete reason was recorded.
+                        if (failedInsertions.length === failureCount) {
+                            showIframeRemovalDialog = true;
+                        }
                     }
                 } else {
                     iframe.remove();
@@ -229,12 +387,17 @@ const convertForSubmit = async(editor) => {
          * @returns {Promise<void>} A promise that resolves when the processing is complete.
          */
         const processIframe = async(domNode) => {
-            const replacement = await getIframeReplacementContent(editor, domNode);
+            const failureCount = failedInsertions.length;
+            const replacement = await getIframeReplacementContent(
+                editor, domNode, failedInsertions, submitContext.createdInstances);
             if (replacement !== '') {
                 domNode.outerHTML = replacement;
             } else {
                 domNode.remove();
-                showIframeRemovalDialog = true;
+                // Only fall back to the generic notice when no concrete reason was recorded.
+                if (failedInsertions.length === failureCount) {
+                    showIframeRemovalDialog = true;
+                }
             }
         };
         /**
@@ -260,7 +423,9 @@ const convertForSubmit = async(editor) => {
             }
         };
         if (domNode.hasChildNodes()) {
-            for (const node of domNode.childNodes) {
+            // childNodes is live: snapshot it, otherwise removing a node while processing it
+            // makes the iteration skip its next sibling.
+            for (const node of Array.from(domNode.childNodes)) {
                 await iterateAsync(node);
             }
         }
@@ -283,49 +448,47 @@ const convertForSubmit = async(editor) => {
         }
     };
 
-    const container = window.document.createElement('div');
-    container.innerHTML = editor.getContent();
-    await iterateAsync(container);
-    editor.setContent(container.innerHTML);
-    for (const resourceId of initialElements) {
-        await deleteEduSharingInstance({
-            eduDeleteStructure: {
-                id: resourceId,
-                courseId: parseInt(getCourseId(editor))
-            }
-        });
+    // Snapshot the state we are about to mutate. An unexpected failure aborts the whole
+    // submit, so the editor has to be left exactly as the user had it - otherwise a retry
+    // would treat already converted elements as new and create duplicate usages.
+    const originalContent = editor.getContent();
+    const originalInitialElements = [...initialElements];
+    try {
+        const container = window.document.createElement('div');
+        container.innerHTML = originalContent;
+        await iterateAsync(container);
+        editor.setContent(container.innerHTML);
+        for (const resourceId of initialElements) {
+            await deleteEduSharingInstance({
+                eduDeleteStructure: {
+                    id: resourceId,
+                    courseId: courseId
+                }
+            });
+        }
+    } catch (error) {
+        editor.setContent(originalContent);
+        initialElementsMap.set(editor, originalInitialElements);
+        throw error;
     }
-    if (showIframeRemovalDialog || removedWidgets.length > 0) {
-        const translatedTitle = await new Promise((resolve) => {
-            getString('removalTitle', 'tiny_edusharing').done(resolve);
-        });
-        let translatedIframeMessage = "";
+    const hasUsageFailures = failedInsertions.length > 0 || failedUpdates.length > 0;
+    if (showIframeRemovalDialog || removedWidgets.length > 0 || hasUsageFailures) {
+        let body = '';
         if (showIframeRemovalDialog) {
-            translatedIframeMessage = await new Promise((resolve) => {
-                getString('iframeRemovalInfo', 'tiny_edusharing').done(resolve);
-            });
-            translatedIframeMessage = '<p>' + translatedIframeMessage + '</p>';
+            body += '<p>' + await getString('iframeRemovalInfo', component) + '</p>';
         }
-        let translatedModalMessage = "";
         if (removedWidgets.length > 0) {
-            translatedModalMessage = await new Promise((resolve) => {
-                getString('widgetRemovalInfo', 'tiny_edusharing').done(resolve);
-            });
-            translatedModalMessage = '<p>' + translatedModalMessage.replace('##placeholder##', removedWidgets.join(', ')) + '</p>';
+            const widgetMessage = await getString('widgetRemovalInfo', component);
+            body += '<p>' + widgetMessage.replace('##placeholder##', removedWidgets.join(', ')) + '</p>';
         }
-        const body = (showIframeRemovalDialog ? translatedIframeMessage : '')
-            + (removedWidgets.length > 0 ? translatedModalMessage : '');
-        const modal = await Modal.create({
-            title: translatedTitle,
-            body: body,
-            footer: '<button type="button" class="btn btn-primary" data-action="confirm">OK</button>',
-            show: true,
-            removeOnClose: true
-        });
-        await new Promise((resolve) => {
-            modal.getRoot().on('click', '[data-action="confirm"]', resolve);
-            modal.getRoot().on('hidden.bs.modal', resolve);
-        });
+        if (failedInsertions.length > 0) {
+            body += renderFailureList(await getString('usageFailureInfo', component), failedInsertions);
+        }
+        if (failedUpdates.length > 0) {
+            body += renderFailureList(await getString('usageUpdateFailureInfo', component), failedUpdates);
+        }
+        const title = await getString(hasUsageFailures ? 'usageFailureTitle' : 'removalTitle', component);
+        await showFailureModal(title, body);
     }
     initialElementsMap.set(editor, []);
 };
@@ -336,11 +499,14 @@ const convertForSubmit = async(editor) => {
  *
  * @param {object} editor - The editor instance responsible for managing content operations.
  * @param {HTMLElement} domNode - The DOM node representing the iframe for which content replacement is executed.
+ * @param {Array<{title: string, reason: string}>} [failures] - Collects the reason when the conversion fails,
+ * so the user can be told why the iframe was dropped.
+ * @param {Array<{id: number, courseId: number}>} [createdInstances] - Collects the usages created here, so an
+ * aborted submit can roll them back.
  * @returns {Promise<string>} A promise that resolves to the HTML content for replacing the iframe,
  * or an empty string if processing fails or required data is unavailable.
- * @throws {Error} If an unexpected issue occurs during processing, resulting in a rejection with an empty string.
  */
-const getIframeReplacementContent = async(editor, domNode) => {
+const getIframeReplacementContent = async(editor, domNode, failures = [], createdInstances = []) => {
     const iframeSrc = domNode.getAttribute('src');
     try {
         const url = new URL(iframeSrc);
@@ -368,6 +534,7 @@ const getIframeReplacementContent = async(editor, domNode) => {
             };
             const response = await addEduSharingInstance(ajaxParams);
             if (response.id !== undefined) {
+                createdInstances.push({id: response.id, courseId: parseInt(getCourseId(editor))});
                 let previewUrl = `${Config.wwwroot}/mod/edusharing/preview.php`
                     + '?resourceId=' + response.id + '&nodeId=' + nodeId + '&mimetype=' + mimeType
                     + '&mediatype=' + mediaType + '&width=' + width + '&height=' + height;
@@ -389,6 +556,10 @@ const getIframeReplacementContent = async(editor, domNode) => {
         return '';
     } catch (e) {
         window.console.error(e);
+        failures.push({
+            title: domNode.getAttribute('title') ?? '',
+            reason: await describeFailure(e)
+        });
         return '';
     }
 };

@@ -30,7 +30,15 @@
 
 import {component} from './common';
 import {getCourseId, getRepoTarget, getRepoUrl, getEnableRepoTargetChooser} from './options';
-import {validateOrigin} from 'mod_edusharing/utils';
+import {
+    clampCustomHeight,
+    isCustomHeightMimeType,
+    usesCustomHeight,
+    validateOrigin,
+    CUSTOM_HEIGHT_DEFAULT,
+    CUSTOM_HEIGHT_MAX,
+    CUSTOM_HEIGHT_MIN
+} from 'mod_edusharing/utils';
 import {renderForPromise} from 'core/templates';
 import Modal from 'tiny_edusharing/modal';
 import ModalEvents from 'core/modal_events';
@@ -61,9 +69,14 @@ const handleInsertSubmission = async(editor) => {
     const version = window.document.querySelector('input[name="eduVersion"]:checked').value;
     const caption = window.document.getElementById('captionInput').value;
     const alignment = window.document.querySelector('input[name="eduAlignment"]:checked').value;
+    // Height only objects are rendered at the full available width, so the width and height
+    // attributes are only there to keep the editor preview in shape - just like for the
+    // object types that offer no size choice at all.
+    const isHeightOnly = window.document.getElementById('edusharingHeightOnly').value === "true";
     let width;
     let height;
-    if (window.document.getElementById('edusharingNoWidth').value === "true") {
+    let renderHeight = null;
+    if (isHeightOnly || window.document.getElementById('edusharingNoWidth').value === "true") {
         const previewHeight = window.document.getElementById('eduPreviewImage').height;
         const previewWidth = window.document.getElementById('eduPreviewImage').width;
         const ratio = previewWidth / previewHeight;
@@ -73,6 +86,9 @@ const handleInsertSubmission = async(editor) => {
         width = window.document.getElementById('eduWidth').value;
         height = checkIfHeightApplicable(node.mediatype) ?
             window.document.getElementById('eduHeight').value : "auto";
+    }
+    if (isHeightOnly) {
+        renderHeight = clampCustomHeight(window.document.getElementById('eduHeight').value);
     }
     let style = '';
     if (alignment !== 'none') {
@@ -113,6 +129,11 @@ const handleInsertSubmission = async(editor) => {
         img = true;
         url.searchParams.set('width', width.toString());
         url.searchParams.set('height', height.toString());
+    }
+    if (renderHeight !== null) {
+        // The height goes into the preview url, not into a data attribute: the filter runs
+        // after the text has been cleaned and HTMLPurifier drops data attributes.
+        url.searchParams.set('render_height', renderHeight.toString());
     }
 
     const content = await renderForPromise(`${component}/content`, {
@@ -161,10 +182,19 @@ const displayDialogue = async(editor) => {
                 const hasAlignmentChanged = inputAlignment !== alignment;
                 const inputWidth = parseInt(window.document.getElementById('eduWidth').value);
                 const inputHeight = parseInt(window.document.getElementById('eduHeight').value);
-                let hasSizeChanged = inputHeight !== height || inputWidth !== width;
+                let hasSizeChanged = isHeightOnly ? false : (inputHeight !== height || inputWidth !== width);
+                const newRenderHeight = isHeightOnly
+                    ? clampCustomHeight(window.document.getElementById('eduHeight').value) : null;
+                // An object that predates the height choice has no stored height yet - saving
+                // the dialogue is what opts it in, at the height the dialogue offered.
+                const hasRenderHeightChanged = isHeightOnly
+                    && (storedRenderHeight === null || newRenderHeight !== renderHeight);
                 if (isSizeEditable && hasSizeChanged) {
                     url.searchParams.set('width', inputWidth);
                     url.searchParams.set('height', inputHeight);
+                }
+                if (isHeightOnly) {
+                    url.searchParams.set('render_height', newRenderHeight);
                 }
                 if (!isOldAttoElement) {
                     if (existingCaption === null && newCaption !== "") {
@@ -190,7 +220,7 @@ const displayDialogue = async(editor) => {
                         eduImage.setAttribute('width', inputWidth);
                         eduImage.setAttribute('height', inputHeight);
                     }
-                    if (hasAlignmentChanged || hasSizeChanged) {
+                    if (hasAlignmentChanged || hasSizeChanged || hasRenderHeightChanged) {
                         eduImage.setAttribute('src', url.toString());
                         eduImage.setAttribute('data-edited', 1);
                     }
@@ -209,10 +239,10 @@ const displayDialogue = async(editor) => {
                         edusharingTitle: url.searchParams.get('title'),
                         edusharingInsertCaption: window.document.getElementById('captionInput').value !== "",
                         edusharingCaption: window.document.getElementById('captionInput').value,
-                        edusharingWidth: inputWidth.toString(),
-                        edusharingHeight: inputHeight.toString(),
+                        edusharingWidth: (isHeightOnly ? width : inputWidth).toString(),
+                        edusharingHeight: (isHeightOnly ? height : inputHeight).toString(),
                         edusharingStyle: style,
-                        dataEdited: hasAlignmentChanged || hasSizeChanged
+                        dataEdited: hasAlignmentChanged || hasSizeChanged || hasRenderHeightChanged
                     }).then(result => {
                         currentEdusharing.remove();
                         if (paragraphToRemove !== null) {
@@ -270,6 +300,7 @@ const displayDialogue = async(editor) => {
         submitButton.disabled = false;
         submitButton.innerHTML = submitButton.getAttribute('data-secondary-title');
         let isSizeEditable = true;
+        let isHeightOnly = false;
         const modalTitle = root.querySelector('.modal-title');
         modalTitle.textContent = modalTitle.querySelector('input').value;
         window.document.getElementById('repoButtonContainer').classList.add('d-none');
@@ -286,7 +317,19 @@ const displayDialogue = async(editor) => {
         const mediaType = url.searchParams.get('mediatype');
         let width = 400;
         let height = 600;
-        if (!hideSizeOptions(mediaType)) {
+        // The parameter is written for every height only object, so its mere presence marks one.
+        // Objects inserted before the height choice existed are recognised by their mimetype -
+        // serlo and lti tool objects among them keep the size handling they were inserted with.
+        const storedRenderHeight = url.searchParams.get('render_height');
+        isHeightOnly = storedRenderHeight !== null || isCustomHeightMimeType(url.searchParams.get('mimetype'));
+        let renderHeight = null;
+        if (isHeightOnly) {
+            width = parseInt(eduImage.getAttribute('width') ?? 400) || 400;
+            height = parseInt(eduImage.getAttribute('height') ?? 600) || 600;
+            renderHeight = clampCustomHeight(storedRenderHeight);
+            showHeightOnlyInput(renderHeight);
+            isSizeEditable = false;
+        } else if (!hideSizeOptions(mediaType)) {
             width = parseInt(eduImage.getAttribute('width') ?? 400);
             height = parseInt(eduImage.getAttribute('height') ?? 600);
             initSizeCalculation(width, height);
@@ -335,7 +378,10 @@ const displayDialogue = async(editor) => {
             if (event.data.event === "APPLY_NODE" && validateOrigin(event.origin, repoUrl)) {
                 window.console.log(event);
                 const prepareModal = () => {
-                    if (hideSizeOptions(node.mediatype)) {
+                    if (node.mediatype !== 'ref' && usesCustomHeight(node)) {
+                        window.document.getElementById('edusharingHeightOnly').value = "true";
+                        showHeightOnlyInput(CUSTOM_HEIGHT_DEFAULT);
+                    } else if (hideSizeOptions(node.mediatype)) {
                         window.document.getElementById('edusharingNoWidth').value = "true";
                     } else {
                         const width = node.properties['ccm:width'] !== undefined
@@ -425,6 +471,33 @@ const hideSizeOptions = mediaType => {
         return true;
     }
     return false;
+};
+
+/**
+ * Offers the height as the only size option.
+ *
+ * Objects rendered at the full available width - pdf-like documents, serlo and lti tool
+ * objects - have
+ * no width to choose, and their height is not tied to an aspect ratio either.
+ *
+ * @param {number} height
+ */
+const showHeightOnlyInput = height => {
+    window.document.getElementById('eduWidthContainer').classList.remove('d-none');
+    window.document.getElementById('eduHeightOnlyHint').classList.remove('d-none');
+    const widthInput = window.document.getElementById('eduWidth');
+    widthInput.classList.add('d-none');
+    if (widthInput.labels) {
+        widthInput.labels.forEach(label => label.classList.add('d-none'));
+    }
+    const heightInput = window.document.getElementById('eduHeight');
+    heightInput.classList.remove('d-none');
+    if (heightInput.labels) {
+        heightInput.labels.forEach(label => label.classList.remove('d-none'));
+    }
+    heightInput.setAttribute('min', CUSTOM_HEIGHT_MIN.toString());
+    heightInput.setAttribute('max', CUSTOM_HEIGHT_MAX.toString());
+    heightInput.value = height;
 };
 
 const hideHeightInput = mediaType => {

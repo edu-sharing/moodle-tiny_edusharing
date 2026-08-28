@@ -132,6 +132,7 @@
                         </div>
                         <div class="mb-3" id="eduWidthContainer">
                             <h5>{{#str}} edu_tiny_dimensions, tiny_edusharing{{/str}}</h5>
+                            <div id="eduHeightOnlyHint" class="pb-2 d-none">{{#str}} edu_tiny_heightOnlyHint, tiny_edusharing{{/str}}</div>
                             <div class="form-group">
                                 <label for="eduWidth">{{#str}} edu_tiny_width, tiny_edusharing{{/str}}</label>
                                 <input type="number" class="form-control" id="eduWidth" min="0" step="1"/>
@@ -150,6 +151,7 @@
             </div>
             <input id="edusharing_node" name="edusharing_node" type="hidden" value=""/>
             <input id="edusharingNoWidth" name="edusharingNoWidth" type="hidden" value=""/>
+            <input id="edusharingHeightOnly" name="edusharingHeightOnly" type="hidden" value=""/>
         </form>
     {{/body}}
 
