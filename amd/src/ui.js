@@ -173,6 +173,22 @@ const sanitizePreviewUrl = (rawUrl) => {
     return '#';
 };
 
+/**
+ * Points an element at a new preview url.
+ *
+ * tinyMCE remembers the url an element was parsed with in a data-mce-src attribute and
+ * restores the src from it whenever the content is serialised. Writing the src alone would
+ * therefore be undone on save - unnoticed for the width and height, which live in attributes
+ * of their own, but the render height only exists as a query parameter of this url.
+ *
+ * @param {HTMLElement} element
+ * @param {string} previewUrl
+ */
+const setPreviewSrc = (element, previewUrl) => {
+    element.setAttribute('src', previewUrl);
+    element.setAttribute('data-mce-src', previewUrl);
+};
+
 const displayDialogue = async(editor) => {
     const prepareEditModal = () => {
         const addEditSubmitHandler = () => {
@@ -221,7 +237,7 @@ const displayDialogue = async(editor) => {
                         eduImage.setAttribute('height', inputHeight);
                     }
                     if (hasAlignmentChanged || hasSizeChanged || hasRenderHeightChanged) {
-                        eduImage.setAttribute('src', url.toString());
+                        setPreviewSrc(eduImage, url.toString());
                         eduImage.setAttribute('data-edited', 1);
                     }
                 } else {
