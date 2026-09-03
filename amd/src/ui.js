@@ -335,7 +335,8 @@ const displayDialogue = async(editor) => {
         let height = 600;
         // The parameter is written for every height only object, so its mere presence marks one.
         // Objects inserted before the height choice existed are recognised by their mimetype -
-        // serlo and lti tool objects among them keep the size handling they were inserted with.
+        // the ones identified by something other than that (serlo, lti tool, learningapps and
+        // brockhaus objects) keep the size handling they were inserted with.
         const storedRenderHeight = url.searchParams.get('render_height');
         isHeightOnly = storedRenderHeight !== null || isCustomHeightMimeType(url.searchParams.get('mimetype'));
         let renderHeight = null;
@@ -492,9 +493,9 @@ const hideSizeOptions = mediaType => {
 /**
  * Offers the height as the only size option.
  *
- * Objects rendered at the full available width - pdf-like documents, serlo and lti tool
- * objects - have
- * no width to choose, and their height is not tied to an aspect ratio either.
+ * Objects rendered at the full available width have no width to choose, and their height is
+ * not tied to an aspect ratio either. Which objects those are is decided by
+ * mod_edusharing/utils usesCustomHeight.
  *
  * @param {number} height
  */
