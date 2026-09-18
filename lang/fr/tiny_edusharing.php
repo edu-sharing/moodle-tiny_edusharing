@@ -64,5 +64,5 @@ $string['usageFailureInfo'] = 'Les objets edu-sharing suivants n\'ont pas pu êt
 $string['usageFailureTitle'] = 'Les objets edu-sharing n\'ont pas pu être enregistrés';
 $string['usageFailureUnknownReason'] = 'Erreur inconnue.';
 $string['usageUpdateFailureInfo'] = 'Les modifications des objets edu-sharing suivants n\'ont pas pu être enregistrées. Les objets ont été conservés inchangés :';
-$string['widgetRemovalInfo'] = 'Un ou plusieurs widgets Edu-Sharing n\'ont pas pu être convertis en widgets Moodle (##placeholder##). Seul le type de widget "wlo-content-teaser" est pris en charge. Veuillez utiliser l\'option d\'éditeur native pour le contenu edu-sharing.';
+$string['widgetRemovalInfo'] = 'Un ou plusieurs widgets Edu-Sharing n\'ont pas pu être convertis en widgets Moodle (##placeholder##). Seuls les types de widget "content-teaser" et "wlo-content-teaser" sont pris en charge. Veuillez utiliser l\'option d\'éditeur native pour le contenu edu-sharing.';
 $string['width'] = 'Largeur';

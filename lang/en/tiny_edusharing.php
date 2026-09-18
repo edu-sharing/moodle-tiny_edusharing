@@ -65,5 +65,5 @@ $string['usageFailureInfo'] = 'The following edu-sharing objects could not be re
 $string['usageFailureTitle'] = 'edu-sharing objects could not be saved';
 $string['usageFailureUnknownReason'] = 'Unknown error.';
 $string['usageUpdateFailureInfo'] = 'Changes to the following edu-sharing objects could not be saved. The objects were kept unchanged:';
-$string['widgetRemovalInfo'] = 'One or more Edu-Sharing widgets could not be converted to moodle widgets (##placeholder##). Only the widget type "wlo-content-teaser" is supported. Please use the native editor option for edu-sharing content.';
+$string['widgetRemovalInfo'] = 'One or more Edu-Sharing widgets could not be converted to moodle widgets (##placeholder##). Only the widget types "content-teaser" and "wlo-content-teaser" are supported. Please use the native editor option for edu-sharing content.';
 $string['width'] = 'Width';

@@ -48,6 +48,12 @@ const widgetAttributeWhitelist = [
     'search-text'
 ];
 
+// Widget types moodle can render. Repositories emit the content teaser under both names.
+const supportedWidgetTypes = [
+    'content-teaser',
+    'wlo-content-teaser'
+];
+
 export const initEventHandler = (editor) => {
     const container = editor.getContainer();
     const form = container.closest("form");
@@ -339,7 +345,12 @@ const convertForSubmit = async(editor, submitContext = {createdInstances: []}) =
          */
         const processTextNode = async(domNode) => {
             const tempDiv = document.createElement('div');
-            tempDiv.textContent = domNode.textContent;
+            // A widget or an embedding iframe pasted into the editor survives tinyMCE's schema
+            // as escaped text, so the markup has to be parsed to be found at all. DOMParser
+            // does that inertly - it runs no scripts and fetches no subresources - which
+            // assigning innerHTML would not.
+            const parsed = new DOMParser().parseFromString(domNode.textContent, 'text/html');
+            tempDiv.append(...Array.from(parsed.body.childNodes).map(node => document.importNode(node, true)));
             const iframes = tempDiv.querySelectorAll('iframe.es-embed-iframe');
             for (const iframe of iframes) {
                 if (iframe.getAttribute('data-repo-id') === getRepoId(editor)) {
@@ -603,11 +614,11 @@ export const toWidgetPayload = (domNode) => {
     const attrs = {};
 
     for (const attr of Array.from(domNode.attributes)) {
-        if (!widgetAttributeWhitelist.includes(attr.name)) {
+        if (widgetAttributeWhitelist.includes(attr.name)) {
             attrs[attr.name] = attr.value === '' ? true : attr.value;
         }
     }
-    if (attrs['widget-type'] !== 'wlo-content-teaser') {
+    if (!supportedWidgetTypes.includes(attrs['widget-type'])) {
         throw new Error(`unsupported:${attrs['widget-type']}`);
     }
     return JSON.stringify({tag, attrs});

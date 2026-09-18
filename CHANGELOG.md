@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.0.3] - 2026-09-08
+
+### Fixed
+
+- Widgets pasted into the editor are converted again instead of always being reported as an
+  unsupported type: the attribute whitelist kept exactly the attributes it was meant to drop,
+  so the widget type was never part of the payload.
+- Both names repositories use for the content teaser are accepted ("content-teaser" and
+  "wlo-content-teaser").
+- Text nodes are parsed again when looking for widgets and embedding iframes, so markup that
+  tinyMCE keeps as escaped text is found. Parsing is done inertly via DOMParser.
+- Brockhaus objects offer a width and a height on insert and on edit. Their mediatype "link"
+  would otherwise take the size choice away entirely.
+- Serlo, lti tool and geogebra objects inserted before the height choice existed no longer
+  offer a width and a height on edit. Their mimetype says nothing about how they are rendered,
+  so the stored preview url was not recognised as a height only object and the size entered was
+  silently ignored on rendering; they are now recognised by their mediatype.
+
 ## [11.0.2] - 2026-09-07
 
 ### Fixed

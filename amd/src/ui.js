@@ -32,8 +32,11 @@ import {component} from './common';
 import {getCourseId, getRepoTarget, getRepoUrl, getEnableRepoTargetChooser} from './options';
 import {
     clampCustomHeight,
+    isCustomHeightMediaType,
     isCustomHeightMimeType,
+    isExplicitSizeRepository,
     usesCustomHeight,
+    usesExplicitSize,
     validateOrigin,
     CUSTOM_HEIGHT_DEFAULT,
     CUSTOM_HEIGHT_MAX,
@@ -334,11 +337,15 @@ const displayDialogue = async(editor) => {
         let width = 400;
         let height = 600;
         // The parameter is written for every height only object, so its mere presence marks one.
-        // Objects inserted before the height choice existed are recognised by their mimetype -
-        // the ones identified by something other than that (serlo, lti tool, learningapps and
-        // brockhaus objects) keep the size handling they were inserted with.
+        // Objects inserted before the height choice existed have no such parameter and are
+        // recognised by their mimetype, or - for serlo and lti tool objects, whose mimetype
+        // says nothing about how they are rendered - by their mediatype. Learningapps and
+        // brockhaus objects keep the size handling they were inserted with: they are known by
+        // the remote repository they come from, and nothing in the stored url names it.
         const storedRenderHeight = url.searchParams.get('render_height');
-        isHeightOnly = storedRenderHeight !== null || isCustomHeightMimeType(url.searchParams.get('mimetype'));
+        isHeightOnly = storedRenderHeight !== null
+            || isCustomHeightMimeType(url.searchParams.get('mimetype'))
+            || isCustomHeightMediaType(mediaType);
         let renderHeight = null;
         if (isHeightOnly) {
             width = parseInt(eduImage.getAttribute('width') ?? 400) || 400;
@@ -346,7 +353,8 @@ const displayDialogue = async(editor) => {
             renderHeight = clampCustomHeight(storedRenderHeight);
             showHeightOnlyInput(renderHeight);
             isSizeEditable = false;
-        } else if (!hideSizeOptions(mediaType)) {
+        } else if (isExplicitSizeRepository(url.searchParams.get('repository'))
+            || !hideSizeOptions(mediaType)) {
             width = parseInt(eduImage.getAttribute('width') ?? 400);
             height = parseInt(eduImage.getAttribute('height') ?? 600);
             initSizeCalculation(width, height);
@@ -398,7 +406,10 @@ const displayDialogue = async(editor) => {
                     if (node.mediatype !== 'ref' && usesCustomHeight(node)) {
                         window.document.getElementById('edusharingHeightOnly').value = "true";
                         showHeightOnlyInput(CUSTOM_HEIGHT_DEFAULT);
-                    } else if (hideSizeOptions(node.mediatype)) {
+                        // Objects sized like an image keep the width and height choice their
+                        // mediatype alone would take away. hideSizeOptions hides the inputs as
+                        // a side effect, so it must not even be asked for them.
+                    } else if (!usesExplicitSize(node) && hideSizeOptions(node.mediatype)) {
                         window.document.getElementById('edusharingNoWidth').value = "true";
                     } else {
                         const width = node.properties['ccm:width'] !== undefined
