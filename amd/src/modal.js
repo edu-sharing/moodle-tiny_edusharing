@@ -22,7 +22,6 @@
  */
 
 import Modal from 'core/modal';
-import ModalRegistry from 'core/modal_registry';
 
 const EdusharingModal = class extends Modal {
     static TYPE = 'tiny_edusharing/modal';
@@ -39,6 +38,6 @@ const EdusharingModal = class extends Modal {
     }
 };
 
-ModalRegistry.register(EdusharingModal.TYPE, EdusharingModal, EdusharingModal.TEMPLATE);
+EdusharingModal.registerModalType();
 
 export default EdusharingModal;

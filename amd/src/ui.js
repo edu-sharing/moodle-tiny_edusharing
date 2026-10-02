@@ -45,7 +45,6 @@ import {
 import {renderForPromise} from 'core/templates';
 import Modal from 'tiny_edusharing/modal';
 import ModalEvents from 'core/modal_events';
-import ModalFactory from 'core/modal_factory';
 import {getTicket} from "./repository";
 import Config from 'core/config';
 
@@ -473,8 +472,7 @@ const displayDialogue = async(editor) => {
         }
     }
     const isEditMode = currentEdusharing !== null;
-    const modal = await ModalFactory.create({
-        type: Modal.TYPE,
+    const modal = await Modal.create({
         large: true,
         removeOnClose: true
     });
