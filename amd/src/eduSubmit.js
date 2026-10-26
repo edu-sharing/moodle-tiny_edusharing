@@ -452,6 +452,9 @@ const convertForSubmit = async(editor, submitContext = {createdInstances: []}) =
             && domNode.classList.contains('es-embed-iframe')) {
             if (domNode.getAttribute('data-repo-id') === getRepoId(editor)) {
                 await processIframe(domNode);
+            } else {
+                domNode.remove();
+                showIframeRemovalDialog = true;
             }
         }
         if (domNode instanceof Element && domNode.tagName.toLowerCase() === 'edu-sharing-generic-widget') {
