@@ -221,9 +221,9 @@ const displayDialogue = async(editor) => {
                         newCaptionParagraph.textContent = newCaption;
                         currentEdusharing.appendChild(newCaptionParagraph);
                     } else if (existingCaption !== null && newCaption !== "") {
-                        existingCaptionParagraph.remove();
+                        existingCaptionParagraph.textContent = newCaption;
                     } else if (existingCaption !== null) {
-                        existingCaption.textContent = newCaption;
+                        existingCaptionParagraph.remove();
                     }
                     if (hasAlignmentChanged) {
                         if (inputAlignment === 'none') {
@@ -309,8 +309,8 @@ const displayDialogue = async(editor) => {
             }
         } else {
             if (existingCaptionParagraph !== null) {
-                window.document.getElementById('captionInput').value = existingCaptionParagraph.innerHTML;
-                existingCaption = existingCaptionParagraph.innerHTML;
+                window.document.getElementById('captionInput').value = existingCaptionParagraph.textContent;
+                existingCaption = existingCaptionParagraph.textContent;
             }
             nodeOptionsForm.classList.remove('d-none');
         }
