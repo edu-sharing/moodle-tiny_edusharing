@@ -39,6 +39,28 @@ class plugininfo extends plugin implements
     plugin_with_menuitems
 {
     /**
+     * Function is_enabled
+     *
+     * Moodle 5.x checks tiny/edusharing:use itself, Moodle 4.5 enables every plugin for everyone.
+     * The capability is checked in the editor's context: teachers have it there, not in the system's.
+     *
+     * @param context $context
+     * @param array $options
+     * @param array $fpoptions
+     * @param editor|null $editor
+     * @return bool
+     * @throws coding_exception
+     */
+    public static function is_enabled(
+        context $context,
+        array $options,
+        array $fpoptions,
+        ?editor $editor = null
+    ): bool {
+        return has_capability('tiny/edusharing:use', $context);
+    }
+
+    /**
      * Function get_available_buttons
      *
      * @return string[]
