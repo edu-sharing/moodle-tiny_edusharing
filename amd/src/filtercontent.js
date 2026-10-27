@@ -32,6 +32,14 @@ export const setup = async(editor) => {
         });
     });
 
+    editor.on('BeforeSetContent', (event) => {
+        // Old atto preview links need to be redirected in case the atto plugin is not installed.
+        // This is done before the content reaches the editor's document, which would load the old links.
+        if (typeof event.content === 'string') {
+            event.content = event.content.replaceAll('/lib/editor/atto/plugins/edusharing/', '/mod/edusharing/');
+        }
+    });
+
     editor.on('SetContent', () => {
         // Listen to the SetContent event on the editor and update any edu-sharing-placeholder to not be editable.
         // Doing this means that the inner content of the placeholder cannot be changed without using the dialogue.
@@ -41,10 +49,6 @@ export const setup = async(editor) => {
         });
         editor.getBody().querySelectorAll('.edusharing-widget-placeholder:not([contenteditable])').forEach((node) => {
             node.contentEditable = false;
-        });
-        // Old atto preview links need to be redirected in case the atto plugin is not installed.
-        editor.getBody().querySelectorAll('img.edusharing_atto').forEach(node => {
-            node.src = node.src.replace('/lib/editor/atto/plugins/edusharing/', '/mod/edusharing/');
         });
     });
 };
