@@ -267,9 +267,16 @@ const convertForSubmit = async(editor, submitContext = {createdInstances: []}) =
             let searchParams = uri.searchParams;
             // Used to name the object in the failure report, so fall back to the title attribute.
             const objectTitle = searchParams.get('title') || domNode.getAttribute('title') || '';
+            // The editor's preview carries the inserting user's ticket, which must not be stored with the text.
+            // preview.php does not need it; texts saved before lose it on their next save.
+            const hadTicket = searchParams.has('ticket');
+            searchParams.delete('ticket');
             let indexOfElement = initialElements.indexOf(parseInt(searchParams.get('resourceId')));
             if (indexOfElement >= 0) {
                 initialElements.splice(indexOfElement, 1);
+                if (hadTicket) {
+                    domNode.setAttribute(domNode.nodeName.toLowerCase() === 'img' ? 'src' : 'href', uri.toString());
+                }
                 if (domNode.getAttribute('data-edited') !== null && domNode.getAttribute('data-edited') !== "") {
                     let ajaxParams = {
                         eduStructure: {
