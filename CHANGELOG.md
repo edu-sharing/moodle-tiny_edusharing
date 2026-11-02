@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.0.5] - 2026-11-02
+
+### Fixed
+
+- Changing the caption of an existing object in the edit dialog no longer removes it, and clearing
+  it no longer keeps the old one. Captions containing & or < are no longer written back as
+  entities.
+- Embedding iframes of another repository entered in the source code view are removed with a
+  notice, as they already were when pasted as text.
+- On Moodle 4.5 the edu-sharing button is only shown to users with tiny/edusharing:use in the
+  editor's context. Moodle 4.5 enables every editor plugin for everyone, so students got the
+  button too.
+- The inserting user's repository ticket is no longer stored with the text, where it ended up in
+  other teachers' editors, backups and imports. Texts saved before lose it on their next save.
+- Editing a text with an object inserted by Atto no longer requests the old Atto preview, which
+  answers 404 once atto_edusharing is removed.
+
+### Changed
+
+- Bumped the Moodle version in the CI pipeline to 5.3
+
 ## [11.0.4]
 
 ### Fixed
